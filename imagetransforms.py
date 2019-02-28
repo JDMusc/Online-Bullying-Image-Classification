@@ -3,10 +3,7 @@ import re
 
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 
-#open cv loads image as BGR but matplotlib expects RGB
-showColorImg = lambda img: plt.imshow(img[:, :, ::-1])
 
 def getId(img_f):
     return int(re.search('\d+', img_f).group())
