@@ -4,6 +4,8 @@ import re
 import cv2
 import numpy as np
 
+import utils
+
 
 def getId(img_f):
     return int(re.search('\d+', img_f).group())
@@ -51,11 +53,8 @@ def processFile(img_dir, f):
 
 
 def processDir(img_dir):
-    fs = [f for f in os.listdir(img_dir) if ('jpg' in f.lower() 
-                                             or  'jpeg' in f.lower()
-                                            or 'png' in f.lower())
-          and 
-          'flipped' not in f and 'noisy' not in f]
+    fs = [f for f in os.listdir(img_dir) if utils.isImage(f) and 
+          utils.isOriginal(f)]
     for f in fs:
         processFile(img_dir, f)
         
