@@ -134,6 +134,10 @@ def train_model(
     return model
 
 
+def viewParamsToBeUpdated(model):
+    return [n for (n,p) in model.named_parameters() if p.requires_grad == True]
+
+
 def _run_epoch(model, criterion, optimizer, scheduler, dataloaders, 
                dataset_sizes, device, num_epochs, epoch, writer):
     print('Epoch {}/{}'.format(epoch, num_epochs - 1))
