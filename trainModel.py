@@ -80,6 +80,12 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
     return model_ft, input_size
 
 
+def findParam(model, name_comps):
+    name_comps = [name_comps] if type(name_comps) is str else name_comps
+    return [(n, pa) for (n, pa) in model.named_parameters()
+            if all(nc in n for nc in name_comps)]
+
+
 def set_parameter_requires_grad(model, feature_extracting):
     if feature_extracting:
         for param in model.parameters():
@@ -136,6 +142,15 @@ def train_model(
 
 def viewParamsToBeUpdated(model):
     return [n for (n,p) in model.named_parameters() if p.requires_grad == True]
+
+
+def add_graph_model(writer, model, dataloaders, device):
+    inputs, classes = p(dataloaders['train'], iter, next)
+    
+    inputs = inputs.to(device)
+    classes = classes.to(device)
+    
+    writer.add_graph(model, inputs)
 
 
 def _run_epoch(model, criterion, optimizer, scheduler, dataloaders, 
