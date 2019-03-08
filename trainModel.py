@@ -10,6 +10,10 @@ from torchvision import datasets, models, transforms
 import numpy as np
 
 
+def getModelInputSize(model_name):
+    299 if model_name is "inception" else 224
+
+
 def initialize_model(model_name, num_classes, feature_extract, use_pretrained=True):
     model_ft = None
     input_size = 0
@@ -18,78 +22,83 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         """ Resnet18
         """
         model_ft = models.resnet18(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        setParameterRequiresGrad(model_ft, not feature_extract)
         num_ftrs = model_ft.fc.in_features
         model_ft.fc = nn.Linear(num_ftrs, num_classes)
-        input_size = 224
+    
+    elif model_name == "resnet34":
+        model_ft = models.resnet34(pretrained=use_pretrained)
+        setParameterRequiresGrad(model_ft, not feature_extract)
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, num_classes)
 
     elif model_name == "alexnet":
         """ Alexnet
         """
         model_ft = models.alexnet(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        setParameterRequiresGrad(model_ft, not feature_extract)
         num_ftrs = model_ft.classifier[6].in_features
         model_ft.classifier[6] = nn.Linear(num_ftrs,num_classes)
-        input_size = 224
 
     elif model_name == "vgg":
         """ VGG11_bn
         """
         model_ft = models.vgg11_bn(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        setParameterRequiresGrad(model_ft, not feature_extract)
         num_ftrs = model_ft.classifier[6].in_features
         model_ft.classifier[6] = nn.Linear(num_ftrs,num_classes)
-        input_size = 224
 
     elif model_name == "squeezenet":
         """ Squeezenet
         """
         model_ft = models.squeezenet1_0(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        setParameterRequiresGrad(model_ft, not feature_extract)
         model_ft.classifier[1] = nn.Conv2d(512, num_classes, kernel_size=(1,1), stride=(1,1))
         model_ft.num_classes = num_classes
-        input_size = 224
 
     elif model_name == "densenet":
         """ Densenet
         """
         model_ft = models.densenet121(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        setParameterRequiresGrad(model_ft, not feature_extract)
         num_ftrs = model_ft.classifier.in_features
         model_ft.classifier = nn.Linear(num_ftrs, num_classes)
-        input_size = 224
 
     elif model_name == "inception":
         """ Inception v3
         Be careful, expects (299,299) sized images and has auxiliary output
         """
         model_ft = models.inception_v3(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        setParameterRequiresGrad(model_ft, not feature_extract)
         # Handle the auxilary net
         num_ftrs = model_ft.AuxLogits.fc.in_features
         model_ft.AuxLogits.fc = nn.Linear(num_ftrs, num_classes)
         # Handle the primary net
         num_ftrs = model_ft.fc.in_features
         model_ft.fc = nn.Linear(num_ftrs,num_classes)
-        input_size = 299
 
     else:
         print("Invalid model name, exiting...")
         exit()
-
-    return model_ft, input_size
-
-
-def findParam(model, name_comps):
-    name_comps = [name_comps] if type(name_comps) is str else name_comps
-    return [(n, pa) for (n, pa) in model.named_parameters()
-            if all(nc in n for nc in name_comps)]
+        
+    return model_ft
 
 
-def set_parameter_requires_grad(model, feature_extracting):
-    if feature_extracting:
-        for param in model.parameters():
-            param.requires_grad = False
+def findParam(model, name_filter):
+    if callable(name_filter):
+        fn = name_filter
+    else:
+        name_filter = [name_filter] if type(name_filter) is str else name_filter
+        fn  = lambda param_name: all(
+            component in param_name for component in name_filter)
+        
+    return [(pn, pv) for (pn, pv) in model.named_parameters() if fn(pn)]
+
+
+def setParameterRequiresGrad(model, requires_grad = False, params = None):
+    params = model.parameters() if params is None else params
+    for param in params:
+        param.requires_grad = requires_grad
 
 
 defaultMn = [0.485, 0.456, 0.406]
