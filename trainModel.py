@@ -120,9 +120,9 @@ def create_data_transforms(crop_size, resize=None,
 
 def train_model(
     model, criterion, optimizer, scheduler, dataloaders, 
-    dataset_sizes, device, num_epochs=25):
+    dataset_sizes, device, num_epochs=25, writer = SummaryWriter()):
 
-    writer = SummaryWriter()
+    
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
 
