@@ -44,3 +44,23 @@ def makeScrapData(classes, dest_dir = None, n_train = 30, n_val = None):
                      joinDirGen(tv),
                      joinScrapDir)
             shutil.copyfile(f, dest)
+            
+            
+def classPercentages(data_dir):
+    xs = ('train', 'val')
+    
+    train_dir = os.path.join(data_dir, 'train')
+    classes = os.listdir(train_dir)
+    
+    folders = {(x,c):os.path.join(data_dir, x, c) for x in xs
+          for c in classes}
+    
+    train_val_counts = {x:sum(
+        [p(folders[x, c], os.listdir, len) for c in classes])
+                        for x in xs}
+    
+    percentX = lambda x, c: p(folders[x,c], 
+                              os.listdir, 
+                              len)/(train_val_counts[x])*100
+    
+    return {(x, c): percentX(x,c) for c in classes for  x in xs}
