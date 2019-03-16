@@ -61,26 +61,29 @@ def flatten(x):
 
     
 class ResNet(nn.Module):
-    def __init__(self, block_sizes, num_classes):
+    def __init__(self, block_sizes, num_classes, in_channels = 64):
         super(ResNet, self).__init__()
         
         self.preres = preResLayer()
         
-        self.block1 = makeBlock(64, 64, block_sizes[0], stride=1)
-        self.block2 = makeBlock(64, 128, block_sizes[1])
-        self.block3 = makeBlock(128, 256, block_sizes[2])
-        self.block4 = makeBlock(256, 512, block_sizes[2])
+        blocks = []
         
-        self.postres = postResLayer(512, num_classes)
+        blocks.append(makeBlock(in_channels, in_channels, block_sizes[0], stride=1))
+        
+        for i in range(1, len(block_sizes)):
+            out_channels = in_channels * 2
+            blocks.append(makeBlock(in_channels, out_channels, block_sizes[i]))
+            in_channels = out_channels
+            
+        self.blocks = nn.Sequential(*blocks)
+        
+        self.postres = postResLayer(out_channels, num_classes)
                 
                 
     def forward(self, x):
         return p(x,
                  self.preres,
-                 self.block1,
-                 self.block2,
-                 self.block3,
-                 self.block4,
+                 self.blocks,
                  self.postres
                 )
 
