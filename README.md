@@ -8,7 +8,7 @@ The following executes the script:
 
 "resnet-local" shows the development for our final model, but not the countless runs of trial and error.  
 
-We wrote a modified version of the [ResNet class that comes with PyTorch](https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py).  
+We wrote a modified version of the [ResNet class that comes with PyTorch](https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py). The Residual Net code file is _localResnet.py_.  
 
 Copyright Disclaimer: significant chunks of the code are based on [PyTorch's tutorials](https://pytorch.org/tutorials/).  
 
@@ -18,13 +18,12 @@ There were several advantages to writing our own ResNet
         * We reduced the number of short-circuit blocks to 3
     * The number of convolution channels in the beginning can be specified so model has less parameters
         * We reduced number of first-layer convolution channels to 32
+    * Will be easier to combine attention with ResNet as described in [Residual Attention Network for Image Classification](https://arxiv.org/abs/1704.06904)  
         
-Performance results
-    * 96% accuracy training set, 55% accuracy validation set
-        * 10% boost in validation set accuracy by using reduced number of convolution channels and short-circuit blocks
-    * With Resnet-18 architecture, validation set accuracy (45%) even when train set accuracy was close to 100%. 
+
+Performance results  
+    * 96% accuracy training set, 55% accuracy validation set  
+        * 10% boost in validation set accuracy by using reduced number of convolution channels and short-circuit blocks  
 
 
-We plan to combine attention with ResNet as described in [Residual Attention Network for Image Classification](https://arxiv.org/abs/1704.06904)  
-  
-Our technology stack was PyTorch, with TensorBoard for visualization.
+ Our technology stack was PyTorch, with TensorBoard for visualization.
