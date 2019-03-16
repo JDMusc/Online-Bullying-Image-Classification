@@ -3,7 +3,6 @@
 import sys
 
 import io
-import numpy as np
 from PIL import Image
 from skimage import io
 import torch
