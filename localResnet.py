@@ -64,7 +64,7 @@ class ResNet(nn.Module):
     def __init__(self, block_sizes, num_classes, in_channels = 64):
         super(ResNet, self).__init__()
         
-        self.preres = preResLayer()
+        self.preres = preResLayer(out_channels = in_channels)
         
         blocks = []
         
