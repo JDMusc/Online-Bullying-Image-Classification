@@ -1,4 +1,5 @@
 import copy
+import os
 from toolz import pipe as p
 
 from tensorboardX import SummaryWriter
@@ -51,6 +52,26 @@ def create_data_transforms(crop_size, resize=None,
         ]),
     }
     return data_transforms
+
+
+def create_dataloaders(data_dir, input_size=224): 
+    xs = ['train', 'val']
+
+    data_transforms = create_data_transforms(input_size, input_size)
+    
+    image_datasets = {x: p(data_dir, 
+                           lambda _:os.path.join(_, x),
+                           lambda _: datasets.ImageFolder(_, data_transforms[x])
+                          )
+                      for x in xs}
+
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
+                                                 shuffle=True, num_workers = 4)
+                   for x in xs}
+
+    dataset_sizes = {x: len(image_datasets[x]) for x in xs}
+    
+    return image_datasets, dataloaders, dataset_sizes
 
 
 def train_model(
