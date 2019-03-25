@@ -61,17 +61,21 @@ def flatten(x):
 
     
 class ResNet(nn.Module):
-    def __init__(self, block_sizes, num_classes, in_channels = 64):
+    def __init__(self, block_sizes, num_classes, in_channels = 64, p = None):
         super(ResNet, self).__init__()
         
         self.preres = preResLayer(out_channels = in_channels)
         
         blocks = []
         
+        if p is not None:
+            blocks.append(nn.Dropout(p=p))
+        
         blocks.append(makeBlock(in_channels, in_channels, block_sizes[0], stride=1))
         
         for i in range(1, len(block_sizes)):
             out_channels = in_channels * 2
+
             blocks.append(makeBlock(in_channels, out_channels, block_sizes[i]))
             in_channels = out_channels
             

@@ -36,7 +36,7 @@ def create_data_transforms(crop_size, resize=None,
     resize = crop_size + 26 if resize is None else resize
     data_transforms = {
         'train': transforms.Compose([
-            #transforms.RandomResizedCrop(crop_size),
+            transforms.RandomResizedCrop(crop_size),
             transforms.Resize(resize),
             transforms.RandomHorizontalFlip(),
             transforms.CenterCrop(crop_size),
@@ -72,7 +72,7 @@ def train_model(
 
     # load best model weights
     model.load_state_dict(best_model_wts)
-    return model
+    return (model, best_acc)
 
 
 def viewParamsToBeUpdated(model):
