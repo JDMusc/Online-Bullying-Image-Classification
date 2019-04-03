@@ -76,7 +76,8 @@ def create_dataloaders(data_dir, input_size=224):
 
 def train_model(
     model, criterion, optimizer, scheduler, dataloaders, 
-    dataset_sizes, device, num_epochs=25, writer = SummaryWriter()):
+    dataset_sizes, device, num_epochs=25, writer = SummaryWriter(),
+    log_params = False):
 
     
     best_model_wts = copy.deepcopy(model.state_dict())
@@ -85,7 +86,7 @@ def train_model(
     for epoch in range(num_epochs):
         epoch_acc, model_wts = _run_epoch(
             model, criterion, optimizer, scheduler, dataloaders, dataset_sizes,
-            device, num_epochs, epoch, writer)
+            device, num_epochs, epoch, writer, log_params = log_params)
         
         if epoch_acc > best_acc:
             best_acc = epoch_acc
@@ -110,7 +111,8 @@ def add_graph_model(writer, model, dataloaders, device):
 
 
 def _run_epoch(model, criterion, optimizer, scheduler, dataloaders, 
-               dataset_sizes, device, num_epochs, epoch, writer):
+               dataset_sizes, device, num_epochs, epoch, writer,
+               log_params = False):
     print('Epoch {}/{}'.format(epoch, num_epochs - 1))
     print('-' * 10)
 
@@ -142,7 +144,8 @@ def _run_epoch(model, criterion, optimizer, scheduler, dataloaders,
         epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
         _log_epoch_stats(writer, epoch, phase, epoch_loss, epoch_acc)
-        _log_model_params(writer, model, epoch, phase)
+        if log_params:
+            _log_model_params(writer, model, epoch, phase)
 
         # deep copy the model
     model_wts = copy.deepcopy(model.state_dict())
@@ -193,6 +196,7 @@ def _log_model_params(writer, model, run_num, scope, use_hist = False):
 
 
 def _log_epoch_stats(writer, epoch, scope, epoch_loss, epoch_acc):  
+
     log_measure = lambda k, v: p(k,
                                  _add_scope_gen(scope),
                                  lambda _ : writer.add_scalar(_, v, epoch)
