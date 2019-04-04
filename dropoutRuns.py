@@ -26,7 +26,7 @@ n_classes = len(class_names)
 
 defaultModel = localResnet.ResNet([2, 2, 2, 2], n_classes, p=.2).to(device)
 
-def runEpochs(model, i = 1, log_dir = None):
+def runEpochs(model, i = 1, log_dir = None, log_params = False):
 
     log_dir = 'runs/dropout/' + str(i) if log_dir is None else log_dir
 
@@ -37,17 +37,20 @@ def runEpochs(model, i = 1, log_dir = None):
                                    dataloaders, dataset_sizes,
                                    device,
                                    writer = SummaryWriter(log_dir),
-                                   num_epochs = 25
+                                   num_epochs = 25,
+                                   log_params = log_params
                                   )
     return model, best_acc
 
 
 def trainTheModel(model = defaultModel, start_run=0, num_runs = 5,
-        log_dir_base = 'runs/dropout/', cutoff_acc = None):
+        log_dir_base = 'runs/dropout/', cutoff_acc = None, 
+        log_params = False):
     
     for i in range(start_run, start_run + num_runs):
         model, best_acc = runEpochs(model, i, 
-                log_dir = log_dir_base + '_' + str(i))
+                log_dir = log_dir_base + '_' + str(i),
+                log_params = log_params)
 
         if cutoff_acc is not None and best_acc > cutoff_acc:
             break;
