@@ -54,13 +54,14 @@ def create_data_transforms(crop_size, resize=None,
     return data_transforms
 
 
-def create_dataloaders(data_dir, input_size=224): 
+def create_dataloaders(data_dir, input_size=224, 
+        folders = dict(train='train', val = 'val')):
     xs = ['train', 'val']
 
     data_transforms = create_data_transforms(input_size, input_size)
     
     image_datasets = {x: p(data_dir, 
-                           lambda _:os.path.join(_, x),
+                           lambda _:os.path.join(_, folders[x]),
                            lambda _: datasets.ImageFolder(_, data_transforms[x])
                           )
                       for x in xs}
