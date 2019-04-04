@@ -22,7 +22,7 @@ There were several advantages to writing our own ResNet
         
 
 Performance results  
-    * 92% accuracy training set, 63% accuracy validation set  
+    * 92% accuracy training set, 64% accuracy validation set  
 
 
  Our technology stack was PyTorch, with TensorBoard for visualization.
