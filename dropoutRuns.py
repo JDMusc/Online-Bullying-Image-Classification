@@ -26,11 +26,11 @@ n_classes = len(class_names)
 
 defaultModel = localResnet.ResNet([2, 2, 2, 2], n_classes, p=.2).to(device)
 
-def runEpochs(model, i = 1, log_dir = None, log_params = False):
+def runEpochs(model, i = 1, log_dir = None, log_params = False, lr=.01):
 
     log_dir = 'runs/dropout/' + str(i) if log_dir is None else log_dir
 
-    optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=.9)
+    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=.9)
     (model, best_acc) = trainModel.train_model(model, nn.CrossEntropyLoss(),
                                    optimizer,
                                    lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1),
@@ -45,12 +45,13 @@ def runEpochs(model, i = 1, log_dir = None, log_params = False):
 
 def trainTheModel(model = defaultModel, start_run=0, num_runs = 5,
         log_dir_base = 'runs/dropout/', cutoff_acc = None, 
-        log_params = False):
+        log_params = False, lr = .01):
     
     for i in range(start_run, start_run + num_runs):
         model, best_acc = runEpochs(model, i, 
                 log_dir = log_dir_base + '_' + str(i),
-                log_params = log_params)
+                log_params = log_params,
+                lr = lr)
 
         if cutoff_acc is not None and best_acc > cutoff_acc:
             break;

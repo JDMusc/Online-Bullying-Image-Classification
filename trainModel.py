@@ -1,4 +1,5 @@
 import copy
+from numpy import log10
 import os
 from toolz import pipe as p
 
@@ -78,7 +79,7 @@ def create_dataloaders(data_dir, input_size=224,
 def train_model(
     model, criterion, optimizer, scheduler, dataloaders, 
     dataset_sizes, device, num_epochs=25, writer = SummaryWriter(),
-    log_params = False):
+    log_params_verbose = False):
 
     
     best_model_wts = copy.deepcopy(model.state_dict())
@@ -87,7 +88,7 @@ def train_model(
     for epoch in range(num_epochs):
         epoch_acc, model_wts = _run_epoch(
             model, criterion, optimizer, scheduler, dataloaders, dataset_sizes,
-            device, num_epochs, epoch, writer, log_params = log_params)
+            device, num_epochs, epoch, writer, log_params_verbose = log_params_verbose)
         
         if epoch_acc > best_acc:
             best_acc = epoch_acc
@@ -113,7 +114,7 @@ def add_graph_model(writer, model, dataloaders, device):
 
 def _run_epoch(model, criterion, optimizer, scheduler, dataloaders, 
                dataset_sizes, device, num_epochs, epoch, writer,
-               log_params = False):
+               log_params_verbose = False):
     print('Epoch {}/{}'.format(epoch, num_epochs - 1))
     print('-' * 10)
 
@@ -124,7 +125,12 @@ def _run_epoch(model, criterion, optimizer, scheduler, dataloaders,
 
         if is_train:
             scheduler.step()
+            _log_lr(writer, epoch, scheduler)
+
+            prev_state = model.state_dict()
             model.train()
+            curr_state = model.state_dict()
+            _log_coef_diffs(writer, epoch, prev_state, curr_state)
         else:
             model.eval()
 
@@ -144,9 +150,9 @@ def _run_epoch(model, criterion, optimizer, scheduler, dataloaders,
         epoch_loss = running_loss / dataset_sizes[phase]
         epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
-        _log_epoch_stats(writer, epoch, phase, epoch_loss, epoch_acc)
-        if log_params:
-            _log_model_params(writer, model, epoch, phase)
+        _log_epoch_phase_stats(writer, epoch, phase, epoch_loss, epoch_acc)
+        if log_params_verbose:
+            _log_model_params_verbose(writer, model, epoch, phase)
 
         # deep copy the model
     model_wts = copy.deepcopy(model.state_dict())
@@ -182,7 +188,7 @@ def _add_scope_gen(scope):
     return lambda k: _add_scope(scope, k)
 
 
-def _log_model_params(writer, model, run_num, scope, use_hist = False):
+def _log_model_params_verbose(writer, model, run_num, scope, use_hist = False):
     def write(tag, param):
         fn = writer.add_histogram if use_hist else writer.add_scalar
         param = param if use_hist else param.abs().mean()
@@ -196,7 +202,13 @@ def _log_model_params(writer, model, run_num, scope, use_hist = False):
              )
 
 
-def _log_epoch_stats(writer, epoch, scope, epoch_loss, epoch_acc):  
+def _log_lr(writer, epoch, scheduler):
+    new_lr = scheduler.get_lr()
+    writer.add_scalar('lr', new_lr, epoch)
+    writer.add_scalar('log10_lr', log10(new_lr), epoch)
+
+
+def _log_epoch_phase_stats(writer, epoch, scope, epoch_loss, epoch_acc):  
 
     log_measure = lambda k, v: p(k,
                                  _add_scope_gen(scope),
@@ -209,3 +221,12 @@ def _log_epoch_stats(writer, epoch, scope, epoch_loss, epoch_acc):
     print('{} Loss: {:.4f} Acc: {:.4f}'.format(
         scope, epoch_loss, epoch_acc))
     
+
+def _log_coef_diffs(writer, epoch, prev_model_state, curr_model_state):
+    def write(name, curr):
+        diff = curr - prev_model_state[name]
+        writer.add_scalar(name, diff.abs().mean(), epoch)
+
+    with torch.no_grad():
+        for (name, curr) in curr_model_state:
+              write(name, curr)

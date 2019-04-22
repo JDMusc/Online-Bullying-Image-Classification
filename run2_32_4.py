@@ -25,7 +25,8 @@ n_classes = len(class_names)
 
 defaultModel = localResnet.ResNet([2, 2, 2, 2], n_classes, p=.2, in_channels = 32).to(device)
 
-def runIt(log_params = False, model = defaultModel, model_state_f = None):
+def runIt(log_params = False, model = defaultModel, model_state_f = None, 
+        lr = .01):
     if model_state_f is not None:
         model.load_state_dict(torch.load(model_state_f))
         model.eval()
@@ -33,6 +34,7 @@ def runIt(log_params = False, model = defaultModel, model_state_f = None):
     (model, best_acc) = dropoutRuns.trainTheModel(model = model, 
             start_run = 0, num_runs = 50, cutoff_acc = .96,
             log_dir_base = 'runs/best_model_data',
-            log_params = log_params) 
+            log_params = log_params,
+            lr = lr) 
 
     torch.save(model.state_dict(), 'best_model.pt')
