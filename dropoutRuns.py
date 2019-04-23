@@ -26,7 +26,9 @@ n_classes = len(class_names)
 
 defaultModel = localResnet.ResNet([2, 2, 2, 2], n_classes, p=.2).to(device)
 
-def runEpochs(model, i, log_params_verbose, 
+def runEpochs(model, i, 
+        dataloaders, dataset_sizes,
+        log_params_verbose, 
         lr, lr_epoch_size, lr_gamma,
         num_epochs,
         log_dir = None):
@@ -51,11 +53,13 @@ def trainTheModel(model,
         lr, lr_epoch_size, lr_gamma,
         num_epochs_per_run,
         cutoff_acc = None,
+        dataloaders = dataloaders, dataset_sizes = dataset_sizes,
         start_run=0, num_runs = 5,
         log_dir_base = 'runs/dropout/'):
     
     for i in range(start_run, start_run + num_runs):
         model, best_acc, lr = runEpochs(model, i = i,
+                dataloaders = dataloaders, dataset_sizes = dataset_sizes,
                 log_dir = log_dir_base + '_' + str(i),
                 log_params_verbose = log_params_verbose,
                 lr = lr, lr_epoch_size=lr_epoch_size, lr_gamma=lr_gamma,

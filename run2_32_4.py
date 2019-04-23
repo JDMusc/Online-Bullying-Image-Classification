@@ -35,6 +35,7 @@ def runIt(log_params_verbose = False, model = defaultModel, model_state_f = None
 
     (model, best_acc, lr) = dropoutRuns.trainTheModel(model = model, 
             cutoff_acc = .96,
+            dataloaders = dataloaders, dataset_sizes = dataset_sizes,
             log_dir_base = 'runs/best_model_data',
             log_params_verbose = log_params_verbose,
             lr = lr, lr_epoch_size = lr_epoch_size, lr_gamma = lr_gamma,
