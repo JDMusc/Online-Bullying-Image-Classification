@@ -26,21 +26,24 @@ n_classes = len(class_names)
 
 defaultModel = localResnet.ResNet([2, 2, 2, 2], n_classes, p=.2).to(device)
 
-def runEpochs(model, i = 1, log_dir = None, log_params = False, lr=.01):
+def runEpochs(model, i = 1, log_dir = None, log_params_verbose = False, 
+        lr=.01, lr_epoch_size = 25, lr_gamma = .1):
 
     log_dir = 'runs/dropout/' + str(i) if log_dir is None else log_dir
 
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=.9)
+    scheduler = lr_scheduler.StepLR(optimizer, step_size=lr_epoch_size, 
+            gamma=lr_gamma),
+
     (model, best_acc) = trainModel.train_model(model, nn.CrossEntropyLoss(),
-                                   optimizer,
-                                   lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1),
+                                   optimizer, scheduler,
                                    dataloaders, dataset_sizes,
                                    device,
                                    writer = SummaryWriter(log_dir),
                                    num_epochs = 25,
-                                   log_params = log_params
+                                   log_params_verbose = log_params_verbose
                                   )
-    return model, best_acc
+    return model, best_acc, lr_scheduler.get_lr()
 
 
 def trainTheModel(model = defaultModel, start_run=0, num_runs = 5,
@@ -48,7 +51,7 @@ def trainTheModel(model = defaultModel, start_run=0, num_runs = 5,
         log_params = False, lr = .01):
     
     for i in range(start_run, start_run + num_runs):
-        model, best_acc = runEpochs(model, i, 
+        model, best_acc, lr = runEpochs(model, i, 
                 log_dir = log_dir_base + '_' + str(i),
                 log_params = log_params,
                 lr = lr)
