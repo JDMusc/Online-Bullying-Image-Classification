@@ -231,7 +231,13 @@ def _log_epoch_phase_stats(writer, epoch, scope, epoch_loss, epoch_acc):
 def _log_coef_diffs(writer, epoch, prev_model_state, curr_model_state):
     def write(name, curr):
         diff = curr - prev_model_state[name]
-        writer.add_scalar(name + '.diff', diff.abs().mean(), epoch)
+        print(diff[0])
+        print(curr[0])
+        p(name,
+            _add_scope_gen('params'),
+            lambda _: writer.add_scalar(
+                _ + '.diff', diff.abs().mean(), epoch)
+        )
 
     with torch.no_grad():
         for name in curr_model_state:
