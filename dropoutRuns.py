@@ -45,7 +45,7 @@ def runEpochs(model, i,
                                 log_params_verbose, num_epochs,
                                 optimizer, scheduler,
                                 writer = SummaryWriter(log_dir))
-    return model, best_acc, scheduler.get_lr()
+    return model, best_acc, scheduler.get_lr()[0]
 
 
 def trainTheModel(model, 
