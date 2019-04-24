@@ -128,6 +128,8 @@ def _run_epoch(model,
     print('Epoch {}/{}'.format(epoch, num_epochs - 1))
     print('-' * 10)
 
+    n_samples = {'train': 0, 'val': 0}
+
     # Each epoch has a training and validation phase
     for phase in ['train', 'val']:
         is_train = phase == 'train'
@@ -145,8 +147,8 @@ def _run_epoch(model,
         running_corrects = 0
 
         for inputs, labels in dataloaders[phase]:
-            print(phase + ': num labels')
-            p(labels, len, print)
+            n_samples[phase] = n_samples[phase] + p(labels, len, print)
+
             inputs = inputs.to(device)
             labels = labels.to(device)
             preds, loss =  _take_step(
@@ -159,12 +161,19 @@ def _run_epoch(model,
         epoch_loss = running_loss / dataset_sizes[phase]
         epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
+        print('# training samples')
+        print(n_samples['train'])
+        print('# val samples'))
+        print(n_samples['val'])
+
         _log_epoch_phase_stats(writer, epoch, phase, epoch_loss, epoch_acc)
         if log_params_verbose:
             _log_model_params_verbose(writer, model, epoch, phase)
 
     # deep copy the model
     model_wts = copy.deepcopy(model.state_dict())
+
+    print(str(num_samples) + )
             
     return epoch_acc, model_wts
 
