@@ -137,8 +137,6 @@ def _run_epoch(model,
 
         if is_train:
             scheduler.step()
-            _log_lr(writer, epoch, scheduler)
-
             model.train()
         else:
             model.eval()
@@ -162,12 +160,14 @@ def _run_epoch(model,
         epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
         _log_epoch_phase_stats(writer, epoch, phase, epoch_loss, epoch_acc)
+
         if log_params_verbose:
             _log_model_params_verbose(writer, model, epoch, phase)
 
     # deep copy the model
     model_wts = copy.deepcopy(model.state_dict())
 
+    _log_lr(writer, epoch, scheduler)
     print('# training samples')
     print(n_samples['train'])
     print('# val samples')
@@ -200,6 +200,7 @@ def _take_step(model, criterion, optimizer, inputs, labels, is_train):
 def _add_scope(scope, k):
     return scope + '/' + k
     
+
 def _add_scope_gen(scope):
     return lambda k: _add_scope(scope, k)
 
