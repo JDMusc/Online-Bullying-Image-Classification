@@ -88,6 +88,7 @@ def train_model(
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
 
+    prev_model_wts = best_model_wts
     for epoch in range(num_epochs):
         epoch_acc, model_wts = _run_epoch(
             model, 
@@ -95,6 +96,9 @@ def train_model(
             epoch, log_params_verbose, num_epochs, 
             optimizer, scheduler, writer)
         
+        _log_coef_diffs(writer, epoch, prev_model_wts, model_wts)
+        prev_model_wts = model_wts
+
         if epoch_acc > best_acc:
             best_acc = epoch_acc
             best_model_wts = model_wts
@@ -133,10 +137,7 @@ def _run_epoch(model,
             scheduler.step()
             _log_lr(writer, epoch, scheduler)
 
-            prev_state = model.state_dict()
             model.train()
-            curr_state = model.state_dict()
-            _log_coef_diffs(writer, epoch, prev_state, curr_state)
         else:
             model.eval()
 
@@ -144,6 +145,8 @@ def _run_epoch(model,
         running_corrects = 0
 
         for inputs, labels in dataloaders[phase]:
+            print(phase + ': num labels')
+            p(labels, len, print)
             inputs = inputs.to(device)
             labels = labels.to(device)
             preds, loss =  _take_step(
@@ -160,7 +163,7 @@ def _run_epoch(model,
         if log_params_verbose:
             _log_model_params_verbose(writer, model, epoch, phase)
 
-        # deep copy the model
+    # deep copy the model
     model_wts = copy.deepcopy(model.state_dict())
             
     return epoch_acc, model_wts
@@ -209,7 +212,7 @@ def _log_model_params_verbose(writer, model, run_num, scope, use_hist = False):
 
 
 def _log_lr(writer, epoch, scheduler):
-    new_lr = p(scheduler.get_lr(), np.array)
+    new_lr = p(scheduler.get_lr(), np.array)[0]
     writer.add_scalar('lr', new_lr, epoch)
     writer.add_scalar('log10_lr', log10(new_lr), epoch)
 
@@ -231,8 +234,6 @@ def _log_epoch_phase_stats(writer, epoch, scope, epoch_loss, epoch_acc):
 def _log_coef_diffs(writer, epoch, prev_model_state, curr_model_state):
     def write(name, curr):
         diff = curr - prev_model_state[name]
-        print(diff[0])
-        print(curr[0])
         p(name,
             _add_scope_gen('params'),
             lambda _: writer.add_scalar(
