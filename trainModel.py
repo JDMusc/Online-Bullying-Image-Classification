@@ -212,9 +212,15 @@ def _log_model_params_verbose(writer, model, run_num, scope, use_hist = False):
 
 
 def _log_lr(writer, epoch, scheduler):
-    new_lr = p(scheduler.get_lr(), np.array)[0]
-    writer.add_scalar('lr', new_lr, epoch)
-    writer.add_scalar('log10_lr', log10(new_lr), epoch)
+    lr = p(scheduler.get_lr(), np.array)[0]
+    p('lr', 
+        _add_scope_gen('lr'),
+        lambda _: writer.add_scalar(_, lr, epoch)
+        )
+    p('log10_lr',
+        _add_scope_gen('lr'),
+        lambda _: writer.add_scalar(_, log10(lr), epoch)
+        )
 
 
 def _log_epoch_phase_stats(writer, epoch, scope, epoch_loss, epoch_acc):  
