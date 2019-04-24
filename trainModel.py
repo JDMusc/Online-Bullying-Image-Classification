@@ -147,7 +147,7 @@ def _run_epoch(model,
         running_corrects = 0
 
         for inputs, labels in dataloaders[phase]:
-            n_samples[phase] = n_samples[phase] + p(labels, len, print)
+            n_samples[phase] = n_samples[phase] + len(labels)
 
             inputs = inputs.to(device)
             labels = labels.to(device)
@@ -161,11 +161,6 @@ def _run_epoch(model,
         epoch_loss = running_loss / dataset_sizes[phase]
         epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
-        print('# training samples')
-        print(n_samples['train'])
-        print('# val samples'))
-        print(n_samples['val'])
-
         _log_epoch_phase_stats(writer, epoch, phase, epoch_loss, epoch_acc)
         if log_params_verbose:
             _log_model_params_verbose(writer, model, epoch, phase)
@@ -173,7 +168,10 @@ def _run_epoch(model,
     # deep copy the model
     model_wts = copy.deepcopy(model.state_dict())
 
-    print(str(num_samples) + )
+    print('# training samples')
+    print(n_samples['train'])
+    print('# val samples')
+    print(n_samples['val'])
             
     return epoch_acc, model_wts
 
