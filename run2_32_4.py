@@ -18,7 +18,8 @@ import trainModel
 
 device = torch.device("cuda")
 
-data_dir = 'main_train_set/'
+#data_dir = 'main_train_set/'
+data_dir = 'scrap_data2000/'
 image_datasets, dataloaders, dataset_sizes = trainModel.create_dataloaders(data_dir)
 class_names = image_datasets['train'].classes
 n_classes = len(class_names)
