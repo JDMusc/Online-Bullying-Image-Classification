@@ -19,9 +19,11 @@ import localResnet
 device = torch.device("cuda")
 
 
-data_dir = 'scrap_data2000/'
-image_datasets, dataloaders, dataset_sizes = trainModel.create_dataloaders(data_dir)
-class_names = image_datasets['train'].classes
+default_data_dir = 'scrap_data2000/'
+(default_image_datasets, default_dataloaders, 
+        default_dataset_sizes) = trainModel.create_dataloaders(
+                default_data_dir)
+class_names = default_image_datasets['train'].classes
 n_classes = len(class_names)
 
 defaultModel = localResnet.ResNet([2, 2, 2, 2], n_classes, p=.2).to(device)
@@ -53,7 +55,8 @@ def trainTheModel(model,
         lr, lr_epoch_size, lr_gamma,
         num_epochs_per_run,
         cutoff_acc = None,
-        dataloaders = dataloaders, dataset_sizes = dataset_sizes,
+        dataloaders = default_dataloaders, 
+        dataset_sizes = default_dataset_sizes,
         start_run=0, num_runs = 5,
         log_dir_base = 'runs/dropout/'):
     
