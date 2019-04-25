@@ -35,10 +35,12 @@ defaultSd = [0.229, 0.224, 0.225]
 
 
 def create_data_transforms(crop_size, resize=None, 
+                           data_augment = True,
                            mn = defaultMn, sd = defaultSd):
     resize = crop_size + 26 if resize is None else resize
     data_transforms = {
         'train': transforms.Compose([
+            transforms.GrayScale,
             transforms.RandomResizedCrop(crop_size),
             transforms.Resize(resize),
             transforms.RandomHorizontalFlip(),
@@ -47,20 +49,34 @@ def create_data_transforms(crop_size, resize=None,
             transforms.Normalize(mn, sd)
         ]),
         'val': transforms.Compose([
+            transforms.GrayScale,
             transforms.Resize(resize),
             transforms.CenterCrop(crop_size),
             transforms.ToTensor(),
             transforms.Normalize(mn, sd)
         ]),
     }
+
+    if not data_augment:
+        data_transform['train'] = transforms.Compose([
+            transforms.GrayScale,
+            transforms.Resize(resize),
+            transforms.RandomHorizontalFlip(),
+            transforms.CenterCrop(crop_size),
+            transforms.ToTensor(),
+            transforms.Normalize(mn, sd)
+        ])
+    
     return data_transforms
 
 
 def create_dataloaders(data_dir, input_size=224, 
+        data_augment = True,
         folders = dict(train='train', val = 'val')):
     xs = ['train', 'val']
 
-    data_transforms = create_data_transforms(input_size, input_size)
+    data_transforms = create_data_transforms(input_size, input_size,
+                                            data_augment=data_augment)
     
     image_datasets = {x: p(data_dir, 
                            lambda _:os.path.join(_, folders[x]),
