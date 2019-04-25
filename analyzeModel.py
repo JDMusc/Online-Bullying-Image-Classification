@@ -27,13 +27,28 @@ def loadImg(f_name):
     return img
 
 
-def predict(model, model_state_f = None, data_dir = default_data_dir):
+def predict(model, data_dir, model_state_f = None):
+    if model_state_f is not None:
+        loadModel(model, model_state_f)
+    
+    def phasePreds(ph): 
+        phase_preds = p(ph,
+            lambda _: os.path.join(data_dir, _),
+            lambda _: predictDir(model, data_dir=_))
+        
+        phase_preds['phase'] = ph
+        return phase_preds
+
+    return p(['train', 'val'],
+        lambda phs: [phasePreds(_) for _ in phs],
+        pd.concat)
+
+
+def predictDir(model, model_state_f = None, data_dir = default_data_dir):
     dataset = loadDataset(data_dir)
 
     if model_state_f is not None:
-        model_state = p(model_state_f, torch.load)
-        model.load_state_dict(model_state)
-        model.eval()
+        loadModel(model, model_state_f)
 
     predIt = lambda f: p(f, loadImg, model, 
             lambda _: torch.max(_, 1)[1])
@@ -56,6 +71,12 @@ def predict(model, model_state_f = None, data_dir = default_data_dir):
     preds['pred_class'] = label_classes('pred_ix')
 
     return preds
+
+
+def loadModel(model, model_state_f):
+    model_state = p(model_state_f, torch.load)
+    model.load_state_dict(model_state)
+    model.eval()
 
 
 def accuracy(preds, rows = None):
