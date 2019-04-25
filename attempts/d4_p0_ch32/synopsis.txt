@@ -5,3 +5,6 @@ run2_32_4.runIt(log_params_verbose=False, model=model, lr=.005, num_runs=5, num_
 run2_32_4.runIt(log_params_verbose=False, model=model, lr=.0001, num_runs=5, num_epochs_per_run=25, start_run=20) 
 run2_32_4.runIt(log_params_verbose=False, model=model, lr=.00001, num_runs=5, num_epochs_per_run=25, start_run=25)
 run2_32_4.runIt(log_params_verbose=False, model=model, lr=.00001, num_runs=5, num_epochs_per_run=25, start_run=30)
+
+analyzeModel.makeMisClassFolder('attempts/d4_p0_ch32/preds.csv', 
+    'attempts/d4_p0_ch32/mis_class_images')

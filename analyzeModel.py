@@ -1,4 +1,6 @@
 from PIL import Image
+import os
+from shutil import copyfile
 from toolz import pipe as p
 
 import numpy as np
@@ -69,7 +71,7 @@ def performanceMetrics(preds):
         'ppv': ppv(preds, c),
         'tnr': tnr(preds, c),
         'npv': npv(preds, c),
-        'class_counts': class_counts(preds, c)
+        'class_counts': classCounts(preds, c)
     } for c in np.unique(preds['class'])}
 
 
@@ -89,7 +91,7 @@ def tnr(preds, target):
     return accuracy(preds, rows = preds['class'] != target)
 
 
-def class_counts(preds, c):
+def classCounts(preds, c):
     preds = preds.loc[preds['class'] == c,]
 
     pred_types = np.unique(preds['pred_class'])
@@ -97,3 +99,28 @@ def class_counts(preds, c):
     counts.sort(key = lambda _: _[1], reverse = True)
     
     return counts
+
+
+def makeMisClassFolder(preds_f, dest_dir):
+    if not os.path.exists(dest_dir):
+        os.mkdir(dest_dir)
+
+    preds = loadPreds(preds_f)
+    preds_mis = preds.loc[preds.class_ix != preds.pred_ix,]
+    pred_classes = np.unique(preds_mis.pred_class)
+
+    for c in pred_classes:
+        c_dir = os.path.join(dest_dir, c)
+        os.mkdir(c_dir)
+
+        preds_mis_c = preds_mis.loc[preds_mis.pred_class == c,]
+        for (_, r) in preds_mis_c.iterrows():
+            p(r.file, 
+                lambda _: r['class'] + '_' + os.path.basename(_),
+                lambda _: os.path.join(c_dir, _),
+                lambda _: copyfile(r.file, _)
+            )
+
+
+def loadPreds(preds_f):
+    return pd.read_csv(preds_f, keep_default_na = False)
