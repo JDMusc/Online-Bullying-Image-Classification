@@ -86,6 +86,11 @@ def accuracy(preds, rows = None):
     return sum(preds.class_ix == preds.pred_ix)/preds.shape[0]
 
 
+def performanceMetricsWithPhase(preds):
+    return {_: performanceMetrics(preds.loc[preds.phase == _,]) for 
+        _ in ['train', 'val']}
+
+
 def performanceMetrics(preds):
     return {c: {
         'tpr': tpr(preds, c),
@@ -122,11 +127,27 @@ def classCounts(preds, c):
     return counts
 
 
-def makeMisClassFolder(preds_f, dest_dir):
-    if not os.path.exists(dest_dir):
-        os.mkdir(dest_dir)
+def mkdirIfNotExists(d):
+    if not os.path.exists(d):
+        os.mkdir(d)
 
+
+def makeMisClassFolderWithPhase(preds_f, dest_dir):
+    mkdirIfNotExists(dest_dir)
+    
     preds = loadPreds(preds_f)
+    for ph in ['train', 'val']:
+        preds_ph = preds.loc[preds.phase == ph,]
+        p(
+            os.path.join(dest_dir, ph),
+            lambda _: makeMisClassFolder(preds_ph, _)
+        )
+
+
+def makeMisClassFolder(preds, dest_dir):
+    mkdirIfNotExists(dest_dir)
+
+    preds = loadPreds(preds) if type(preds) is str else preds
     preds_mis = preds.loc[preds.class_ix != preds.pred_ix,]
     pred_classes = np.unique(preds_mis.pred_class)
 
