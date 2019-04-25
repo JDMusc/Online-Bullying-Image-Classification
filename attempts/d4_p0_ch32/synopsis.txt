@@ -1,0 +1,7 @@
+model = localResnet.ResNet([2, 2, 2, 2], 10, p=0, in_channels = 32).to(device)
+run2_32_4.runIt(log_params_verbose=False, model=model, lr=.01, num_runs=10, num_epochs_per_run=25)              
+run2_32_4.runIt(log_params_verbose=False, model=model, lr=.001, num_runs=5, num_epochs_per_run=25, start_run=10)  
+run2_32_4.runIt(log_params_verbose=False, model=model, lr=.005, num_runs=5, num_epochs_per_run=25, start_run=15)  
+run2_32_4.runIt(log_params_verbose=False, model=model, lr=.0001, num_runs=5, num_epochs_per_run=25, start_run=20) 
+run2_32_4.runIt(log_params_verbose=False, model=model, lr=.00001, num_runs=5, num_epochs_per_run=25, start_run=25)
+run2_32_4.runIt(log_params_verbose=False, model=model, lr=.00001, num_runs=5, num_epochs_per_run=25, start_run=30)
