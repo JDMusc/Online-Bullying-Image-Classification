@@ -66,7 +66,7 @@ def predictDir(model, model_state_f = None, data_dir = default_data_dir):
     ix_to_class = {v:k for (k, v) in dataset.class_to_idx.items()}
     ix_to_class[-1] = 'NA'
 
-    label_classes = lambda col: [ix_to_class[i] for i in ret[col]]
+    label_classes = lambda col: [ix_to_class[i] for i in preds[col]]
     preds['class'] = label_classes('class_ix')
     preds['pred_class'] = label_classes('pred_ix')
 
