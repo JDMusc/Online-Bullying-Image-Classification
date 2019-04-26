@@ -21,7 +21,7 @@ device = torch.device("cuda")
 #data_dir = 'main_train_set/'
 data_dir = 'scrap_data2000/'
 
-def createDataLoaders(data_augment = True):
+def createDataLoaders(data_dir, data_augment = True):
     return trainModel.create_dataloaders(data_dir, data_augment=data_augment)
 
 

@@ -30,8 +30,10 @@ def setParameterRequiresGrad(model, requires_grad = False, params = None):
         param.requires_grad = requires_grad
 
 
-defaultMn = [0.485, 0.456, 0.406]
-defaultSd = [0.229, 0.224, 0.225]
+#defaultMn = [0.485, 0.456, 0.406]
+#defaultSd = [0.229, 0.224, 0.225]
+defaultMn = [.5]
+defaultSd = [.5]
 
 
 def create_data_transforms(crop_size, resize=None, 
@@ -40,7 +42,7 @@ def create_data_transforms(crop_size, resize=None,
     resize = crop_size + 26 if resize is None else resize
     data_transforms = {
         'train': transforms.Compose([
-            transforms.GrayScale,
+            transforms.Grayscale(),
             transforms.RandomResizedCrop(crop_size),
             transforms.Resize(resize),
             transforms.RandomHorizontalFlip(),
@@ -49,7 +51,7 @@ def create_data_transforms(crop_size, resize=None,
             transforms.Normalize(mn, sd)
         ]),
         'val': transforms.Compose([
-            transforms.GrayScale,
+            transforms.Grayscale(),
             transforms.Resize(resize),
             transforms.CenterCrop(crop_size),
             transforms.ToTensor(),
@@ -59,7 +61,7 @@ def create_data_transforms(crop_size, resize=None,
 
     if not data_augment:
         data_transform['train'] = transforms.Compose([
-            transforms.GrayScale,
+            transforms.Grayscale(),
             transforms.Resize(resize),
             transforms.RandomHorizontalFlip(),
             transforms.CenterCrop(crop_size),

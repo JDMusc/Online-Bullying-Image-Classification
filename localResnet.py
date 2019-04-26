@@ -27,7 +27,7 @@ def makeBn2(num_channels):
 
 def preResLayer(out_channels = 64):
     return nn.Sequential(
-        makeConv2d(3, out_channels, kernel_size=7, 
+        makeConv2d(1, out_channels, kernel_size=7, 
                    stride=2, padding=3),
         makeBn2(out_channels),
         nn.ReLU(inplace = True),
