@@ -60,7 +60,7 @@ def create_data_transforms(crop_size, resize=None,
     }
 
     if not data_augment:
-        data_transform['train'] = transforms.Compose([
+        data_transforms['train'] = transforms.Compose([
             transforms.Grayscale(),
             transforms.Resize(resize),
             transforms.RandomHorizontalFlip(),
