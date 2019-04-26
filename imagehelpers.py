@@ -28,7 +28,9 @@ def writeTransformedImages(src_dir, dest_dir, transforms, n = 10):
 
         src_dir_fs = [fullSrc(f) for f in p(c, addSrc, os.listdir) 
             if p(f, fullSrc, os.path.isfile)]
-        src_dir_fs = np.random.choice(src_dir_fs, n)
+
+        if n is not None:
+            src_dir_fs = np.random.choice(src_dir_fs, n)
 
         for src_f in src_dir_fs:
             src_img = Image.open(src_f)
