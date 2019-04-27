@@ -44,19 +44,26 @@ def imageToData(image, n_channels=3):
     return p(image, convert_t, tensorToData)
 
 
-def createTransformList(use_original = False, shift_positive = False):
-
-    ShiftPositive = transforms.Lambda(lambda tensor: tensor + tensor.min().abs())
-
-    Identity = transforms.Lambda(lambda _: _)
+def createTransformList(use_original = False):
 
     transforms_list = [
-    transforms.Grayscale(),
-    transforms.Resize(240),
-    transforms.CenterCrop(224) if use_original else TopCenterCrop,
-    transforms.ToTensor(),
-    transforms.Normalize([.5], [.5]) if use_original else PerImageNorm,
-    ShiftPositive if shift_positive else Identity
+        transforms.Grayscale(),
+        transforms.Resize(240),
+        transforms.CenterCrop(224) if use_original else TopCenterCrop,
+        transforms.ToTensor(),
+        transforms.Normalize([.5], [.5]) if use_original else PerImageNorm
+    ]
+
+    return transforms_list
+
+
+def createAugmentTransformList():
+    transforms_list = [
+        transforms.Grayscale(),
+        transforms.Resize(240),
+        TopCenterCrop,
+        transforms.ToTensor(),
+        PerImageNorm
     ]
 
     return transforms_list

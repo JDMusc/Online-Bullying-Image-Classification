@@ -32,15 +32,8 @@ def setParameterRequiresGrad(model, requires_grad = False, params = None):
         param.requires_grad = requires_grad
 
 
-#defaultMn = [0.485, 0.456, 0.406]
-#defaultSd = [0.229, 0.224, 0.225]
-defaultMn = [.5]
-defaultSd = [.5]
-
-
 def create_data_transforms(crop_size, resize=None, 
-                           data_augment = True,
-                           mn = defaultMn, sd = defaultSd):
+                           data_augment = True):
     resize = crop_size + 26 if resize is None else resize
     data_transforms = {
         'train': transforms.Compose([
@@ -145,7 +138,6 @@ def _run_epoch(model,
     # Each epoch has a training and validation phase
     for phase in ['train', 'val']:
         is_train = phase == 'train'
-        is_val = not is_train
 
         if is_train:
             scheduler.step()
