@@ -12,7 +12,7 @@ from torchvision import datasets, models, transforms
 
 import numpy as np
 
-import imagehelpers
+import imagetransforms
 
 
 def findParam(model, name_filter):
@@ -48,19 +48,19 @@ def create_data_transforms(crop_size, resize=None,
             transforms.RandomResizedCrop(crop_size),
             transforms.Resize(resize),
             transforms.RandomHorizontalFlip(),
-            imagehelpers.TopCenterCrop,
+            imagetransforms.TopCenterCrop,
             transforms.ToTensor(),
-            imagehelpers.PerImageNorm
+            imagetransforms.PerImageNorm
         ]),
-        'val': transforms.Compose([
-            imagehelpers.createTransformList()
-        ]),
+        'val': transforms.Compose(
+            imagetransforms.createTransformList()
+        ),
     }
 
     if not data_augment:
         data_transforms['train'] = transforms.Compose(
             [transforms.RandomHorizontalFlip()] +
-            imagehelpers.createTransformList()
+            imagetransforms.createTransformList()
             )
     
     return data_transforms

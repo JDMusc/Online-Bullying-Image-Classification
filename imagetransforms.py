@@ -1,60 +1,52 @@
-import os
-import re
+from toolz import pipe as p
 
-import cv2
 import numpy as np
-
-import utils
-
-
-def getId(img_f):
-    return int(re.search('\d+', img_f).group())
+from torchvision import transforms
+import torchvision.transforms.functional as TF
 
 
-def flipH(img):
-    return cv2.flip(img, 1)
+def topCenterCrop(img, new_h = 224, new_w = 224):
+    w = img.size[0]
+
+    i = 0
+    j = int( (w-new_w)/2 )
+    return TF.crop(img, i, j, new_h, new_w)
+
+TopCenterCrop = transforms.Lambda(topCenterCrop)
 
 
-def addNoise(img, seed, sd_ratio=.1):
-    img_lab = cv2.cvtColor(img, cv2.COLOR_RGB2LAB)
+def perImageNorm(tensor):
+    mn = [tensor.mean()]
+    sd = [tensor.std()]
+    return TF.normalize(tensor, mn, sd)
+
+PerImageNorm = transforms.Lambda(perImageNorm)
+
+
+def tensorToData(tensor):
+    return tensor.numpy().transpose(1, 2, 0)
+
+
+def imageToData(image, n_channels=3):
+    convert_t = transforms.Compose([
+        transforms.ToTensor()
+    ])
     
-    l_channel = img_lab[:, :, 0]
-    
-    np.random.seed(seed)
-    l_channel = np.random.normal(loc = 0, 
-                             scale = l_channel.std() * sd_ratio, 
-                             size = l_channel.shape) + l_channel
-    l_channel[l_channel < 0] = 0
-    l_channel[l_channel > 255] = 255
-    
-    img_lab[:, :, 0] = l_channel.astype(int)
-    return cv2.cvtColor(img_lab, cv2.COLOR_LAB2RGB)
+    return p(image, convert_t, tensorToData)
 
 
-def interpIntoName(f_name, pattern):
-    (f_name_no_ext, ext) = os.path.splitext(f_name)
-    return f_name_no_ext + '_' + pattern + ext
+def createTransformList(use_original = False, shift_positive = False):
+    ShiftPositive = transforms.Lambda(lambda tensor: tensor + tensor.min().abs())
+    Identity = transforms.Lambda(lambda _: _)
 
+    transforms_list = [
+    transforms.Grayscale(),
+    transforms.Resize(240),
+    transforms.CenterCrop(224) if use_original else TopCenterCrop,
+    transforms.ToTensor(),
+    transforms.Normalize([.5], [.5]) if use_original else PerImageNorm,
+    ShiftPositive if shift_positive else Identity
+    ]
 
-def processFile(img_dir, f):
-    full_f = os.path.join(img_dir, f)
-    img = cv2.imread(full_f)
-    
-    flipped_img = flipH(img)
-    
-    f_id = getId(f)
-    noisy_img = addNoise(img, f_id, .1)
-    #add 1 so flipped does not have same noise
-    noisy_flipped_img = addNoise(flipped_img, f_id+1, .1)
+    return transforms_list
 
-    cv2.imwrite(interpIntoName(full_f, 'noisy'), noisy_img)
-    cv2.imwrite(interpIntoName(full_f, 'flipped'), flipped_img)
-    cv2.imwrite(interpIntoName(full_f, 'noisy_flipped'), noisy_flipped_img)
-
-
-def processDir(img_dir):
-    fs = [f for f in os.listdir(img_dir) if utils.isImage(f) and 
-          utils.isOriginal(f)]
-    for f in fs:
-        processFile(img_dir, f)
-        

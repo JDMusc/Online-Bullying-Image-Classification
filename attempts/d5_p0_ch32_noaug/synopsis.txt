@@ -1,0 +1,4 @@
+#post data normalization
+model = localResnet.ResNet([2, 2, 2, 2, 2], 10, p=.4, in_channels = 32).to(device)
+
+run2_32_4.runIt(log_params_verbose=False, model=model, lr=.0001, num_runs=10, num_epochs_per_run=25, data_augment=False)

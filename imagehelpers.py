@@ -32,12 +32,6 @@ def perImageNorm(tensor):
 PerImageNorm = transforms.Lambda(perImageNorm)
 
 
-def reAddMean(tensor, mn):
-    return TF.normalize(tensor, mn, 1)
-
-ReAddMean = transforms.Lambda(reAddMean)
-
-
 def tensorToData(tensor):
     return tensor.numpy().transpose(1, 2, 0)
 
