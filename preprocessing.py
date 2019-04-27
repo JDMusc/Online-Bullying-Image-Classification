@@ -7,44 +7,48 @@ from torchvision import datasets, transforms
 
 import imagetransforms as it
 
-def createTransformList(use_original = False, shift_positive = False):
-    ShiftPositive = transforms.Lambda(lambda tensor: tensor + tensor.min().abs())
-    Identity = transforms.Lambda(lambda _: _)
-
-    transforms_list = [
-    transforms.Grayscale(),
-    transforms.Resize(240),
-    transforms.CenterCrop(224) if use_original else it.TopCenterCrop,
-    transforms.ToTensor(),
-    transforms.Normalize([.5], [.5]) if use_original else it.PerImageNorm,
-    ShiftPositive if shift_positive else Identity
+def baseTransformList(use_standard = False, random_resize = False):
+    rz = transforms.Resize(240)
+    if random_resize:
+        rz = transforms.RandomResizedCrop(240, scale = (.4, 1.0))
+    return [
+        transforms.Grayscale(),
+        rz,
+        transforms.CenterCrop(224) if use_standard else it.TopCenterCrop(),
+        transforms.ToTensor(),
+        transforms.Normalize([.5], [.5]) if use_standard else it.PerImageNorm
     ]
 
-    return transforms_list
+
+def augmentBaseTransforms(tforms, random_resize = False):
+    tl = baseTransformList(random_resize=random_resize)
+    return tl[0:-1] + tforms + [tl[-1]]
 
 
 def createDataTransforms(crop_size, resize=None, 
                            data_augment = True):
     resize = crop_size + 26 if resize is None else resize
     data_transforms = {
-        'train': transforms.Compose([
-            transforms.Grayscale(),
-            transforms.RandomResizedCrop(crop_size),
-            transforms.Resize(resize),
-            transforms.RandomHorizontalFlip(),
-            it.TopCenterCrop,
-            transforms.ToTensor(),
-            it.PerImageNorm
-        ]),
-        'val': transforms.Compose(
-            createTransformList()
+        'train': transforms.Compose(
+            [transforms.RandomHorizontalFlip(),
+            transforms.ColorJitter(),
+            ] +
+            augmentBaseTransforms(
+                [transforms.RandomChoice(
+                    [it.Sharpen(30, 1), it.Unsharpen, 
+                        it.GaussianBlur(3)])],
+                random_resize=True
+            )
         ),
+        'val': transforms.Compose(
+            baseTransformList()
+        )
     }
 
     if not data_augment:
         data_transforms['train'] = transforms.Compose(
             [transforms.RandomHorizontalFlip()] +
-            createTransformList()
+            baseTransformList()
             )
     
     return data_transforms
