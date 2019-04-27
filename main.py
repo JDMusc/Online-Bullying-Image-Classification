@@ -10,23 +10,21 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim import lr_scheduler
 import torchvision
-from torchvision import datasets, models, transforms
 
-import dropoutRuns
-import localResnet
 import trainModel
+import localResnet
+import modelEpochs
+import preprocessing as pp
 
 
 #default_data_dir = 'main_train_set/'
 default_data_dir = 'scrap_data2000/'
 
-def createDataLoaders(data_dir, data_augment = True):
-    return trainModel.create_dataloaders(data_dir, data_augment=data_augment)
-
 
 def defaultModel(device = torch.device("cuda")): 
     n_classes = 10
     return localResnet.ResNet([2, 2, 2, 2], n_classes, p=.2, in_channels = 32).to(device)
+
 
 def run(log_params_verbose = False, model = defaultModel(), model_state_f = None, 
         data_augment = True,
@@ -38,10 +36,10 @@ def run(log_params_verbose = False, model = defaultModel(), model_state_f = None
         model.load_state_dict(torch.load(model_state_f))
         model.eval()
 
-    _, dataloaders, dataset_sizes = createDataLoaders(data_dir,
+    _, dataloaders, dataset_sizes = pp.createDataloaders(data_dir, 
         data_augment=data_augment)
 
-    (model, _, lr) = dropoutRuns.trainTheModel(model = model, 
+    (model, _, lr) = trainModel.train(model = model, 
             cutoff_acc = .96,
             dataloaders = dataloaders, dataset_sizes = dataset_sizes,
             log_dir_base = 'runs/model_data',

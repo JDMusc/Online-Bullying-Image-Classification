@@ -7,21 +7,22 @@ import numpy as np
 import pandas as pd
 import torch
 
-import trainModel
+import modelEpochs
 
-device = torch.device('cuda')
+import preprocessing as pp
 
-transform = trainModel.create_data_transforms(224)['val']
+transform = pp.createDataTransforms(224)['val']
 
 default_data_dir = 'image_data'
 
+
 def loadDataset(data_dir):
-    (dataset, _, _) = [x['val'] for x in trainModel.create_dataloaders(
+    (dataset, _, _) = [x['val'] for x in pp.createDataloaders(
         data_dir, folders = dict(train='', val=''))]
     return dataset
 
 
-def loadImg(f_name):
+def loadImg(f_name, device = torch.device('cuda')):
     img = p(f_name, Image.open, transform, lambda _: _.to(device))
     img.unsqueeze_(0)
     return img

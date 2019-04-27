@@ -1,266 +1,101 @@
-import copy
-import numpy as np
-from numpy import log10
 import os
 from toolz import pipe as p
+
+import numpy as np
 
 from tensorboardX import SummaryWriter
 
 import torch
 import torch.nn as nn
-from torchvision import datasets, models, transforms
+import torch.optim as optim
+from torch.optim import lr_scheduler
+import torchvision
 
-import numpy as np
+import modelEpochs
 
-import imagetransforms
+import localResnet
+import preprocessing as pp
 
 
-def findParam(model, name_filter):
-    if callable(name_filter):
-        fn = name_filter
-    else:
-        name_filter = [name_filter] if type(name_filter) is str else name_filter
-        fn  = lambda param_name: all(
-            component in param_name for component in name_filter)
+default_data_dir = 'scrap_data2000/'
+(_, default_dataloaders, 
+        default_dataset_sizes) = pp.createDataloaders(default_data_dir)
+n_classes = 10
+
+def runEpochs(model, i, 
+        dataloaders, dataset_sizes,
+        log_params_verbose, 
+        lr, lr_epoch_size, lr_gamma,
+        num_epochs,
+        device = torch.device("cuda"),
+        log_dir = None):
+    log_dir = 'runs/dropout/' + str(i) if log_dir is None else log_dir
+
+    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=.9)
+    scheduler = lr_scheduler.StepLR(optimizer, step_size=lr_epoch_size, 
+            gamma=lr_gamma)
+
+    (model, best_acc) = modelEpochs.runEpochs(model, 
+                                nn.CrossEntropyLoss(),
+                                dataloaders, dataset_sizes, device,
+                                log_params_verbose, num_epochs,
+                                optimizer, scheduler,
+                                writer = SummaryWriter(log_dir))
+    return model, best_acc, scheduler.get_lr()[0]
+
+
+def train(model, 
+        log_params_verbose,
+        lr, lr_epoch_size, lr_gamma,
+        num_epochs_per_run,
+        cutoff_acc = None,
+        dataloaders = default_dataloaders, 
+        dataset_sizes = default_dataset_sizes,
+        start_run=0, num_runs = 5,
+        log_dir_base = 'runs/dropout/'):
+    
+    for i in range(start_run, start_run + num_runs):
+        model, best_acc, lr = runEpochs(model, i = i,
+                dataloaders = dataloaders, dataset_sizes = dataset_sizes,
+                log_dir = log_dir_base + '_' + str(i),
+                log_params_verbose = log_params_verbose,
+                lr = lr, lr_epoch_size=lr_epoch_size, lr_gamma=lr_gamma,
+                num_epochs = num_epochs_per_run)
         
-    return [(pn, pv) for (pn, pv) in model.named_parameters() if fn(pn)]
+        torch.save(model.state_dict(), 'model_' + str(i) + '.pt')
+
+        if cutoff_acc is not None and best_acc > cutoff_acc:
+            break
+
+    return model, best_acc, lr
 
 
-def setParameterRequiresGrad(model, requires_grad = False, params = None):
-    params = model.parameters() if params is None else params
-    for param in params:
-        param.requires_grad = requires_grad
+def tryCombos(num_runs, device = torch.device("cuda")):
+    #ps = [None, .2, .5]
+    ps = [.5]
+    in_channels = [32, 64]
+    block_sizes = [ [2, 2], [2, 2, 2], [2, 2, 2, 2] ]
 
+    for p in ps:
+        for in_channel in in_channels:
+            for block_size in block_sizes:
+                model_name = '_'.join(
+                        [str(comp) for comp in (p, in_channel, len(block_size))])
 
-def create_data_transforms(crop_size, resize=None, 
-                           data_augment = True):
-    resize = crop_size + 26 if resize is None else resize
-    data_transforms = {
-        'train': transforms.Compose([
-            transforms.Grayscale(),
-            transforms.RandomResizedCrop(crop_size),
-            transforms.Resize(resize),
-            transforms.RandomHorizontalFlip(),
-            imagetransforms.TopCenterCrop,
-            transforms.ToTensor(),
-            imagetransforms.PerImageNorm
-        ]),
-        'val': transforms.Compose(
-            imagetransforms.createTransformList()
-        ),
-    }
+                log_dir_base = 'runs/dropout' + '_' + model_name
+                print(log_dir_base)
 
-    if not data_augment:
-        data_transforms['train'] = transforms.Compose(
-            [transforms.RandomHorizontalFlip()] +
-            imagetransforms.createTransformList()
-            )
-    
-    return data_transforms
+                model = localResnet.ResNet(
+                        block_size, n_classes, p=p, 
+                        in_channels=in_channel).to(device)
 
+                model, best_acc, _ = train(model, num_runs = num_runs, 
+                        log_dir_base=log_dir_base,
+                        log_params_verbose = False,
+                        lr = .0001, lr_epoch_size = 25, lr_gamma = .7,
+                        num_epochs_per_run = 25,
+                        cutoff_acc = .96)
 
-def create_dataloaders(data_dir, input_size=224, 
-        data_augment = True,
-        folders = dict(train='train', val = 'val')):
-    xs = ['train', 'val']
-
-    data_transforms = create_data_transforms(input_size, input_size,
-                                            data_augment=data_augment)
-    
-    image_datasets = {x: p(data_dir, 
-                           lambda _:os.path.join(_, folders[x]),
-                           lambda _: datasets.ImageFolder(_, data_transforms[x])
-                          )
-                      for x in xs}
-
-    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
-                                                 shuffle=True, num_workers = 4)
-                   for x in xs}
-
-    dataset_sizes = {x: len(image_datasets[x]) for x in xs}
-    
-    return image_datasets, dataloaders, dataset_sizes
-
-
-def train_model(
-    model, criterion, 
-    dataloaders, dataset_sizes, device, 
-    log_params_verbose, num_epochs,
-    optimizer, scheduler,  
-    writer):
-
-    
-    best_model_wts = copy.deepcopy(model.state_dict())
-    best_acc = 0.0
-
-    prev_model_wts = best_model_wts
-    for epoch in range(num_epochs):
-        epoch_acc, model_wts = _run_epoch(
-            model, 
-            criterion, dataloaders, dataset_sizes, device, 
-            epoch, log_params_verbose, num_epochs, 
-            optimizer, scheduler, writer)
-        
-        _log_coef_diffs(writer, epoch, prev_model_wts, model_wts)
-        prev_model_wts = model_wts
-
-        if epoch_acc > best_acc:
-            best_acc = epoch_acc
-            best_model_wts = model_wts
-
-    # load best model weights
-    model.load_state_dict(best_model_wts)
-    return (model, best_acc)
-
-
-def viewParamsToBeUpdated(model):
-    return [n for (n,p) in model.named_parameters() if p.requires_grad == True]
-
-
-def add_graph_model(writer, model, dataloaders, device):
-    inputs, classes = p(dataloaders['train'], iter, next)
-    
-    inputs = inputs.to(device)
-    classes = classes.to(device)
-    
-    writer.add_graph(model, inputs)
-
-
-def _run_epoch(model, 
-            criterion, dataloaders, dataset_sizes, device, 
-            epoch, log_params_verbose, num_epochs,
-            optimizer, scheduler, writer):
-    print('Epoch {}/{}'.format(epoch, num_epochs - 1))
-    print('-' * 10)
-
-    n_samples = {'train': 0, 'val': 0}
-
-    # Each epoch has a training and validation phase
-    for phase in ['train', 'val']:
-        is_train = phase == 'train'
-
-        if is_train:
-            scheduler.step()
-            model.train()
-        else:
-            model.eval()
-
-        running_loss = 0.0
-        running_corrects = 0
-
-        for inputs, labels in dataloaders[phase]:
-            n_samples[phase] = n_samples[phase] + len(labels)
-
-            inputs = inputs.to(device)
-            labels = labels.to(device)
-            preds, loss =  _take_step(
-                model, criterion, optimizer, inputs, labels, is_train)
-
-            # statistics
-            running_loss += loss.item() * inputs.size(0)
-            running_corrects += torch.sum(preds == labels.data)
-
-        epoch_loss = running_loss / dataset_sizes[phase]
-        epoch_acc = running_corrects.double() / dataset_sizes[phase]
-
-        _log_epoch_phase_stats(writer, epoch, phase, epoch_loss, epoch_acc)
-
-        if log_params_verbose:
-            _log_model_params_verbose(writer, model, epoch, phase)
-
-    # deep copy the model
-    model_wts = copy.deepcopy(model.state_dict())
-
-    _log_lr(writer, epoch, scheduler)
-    print('# training samples')
-    print(n_samples['train'])
-    print('# val samples')
-    print(n_samples['val'])
-            
-    return epoch_acc, model_wts
-
-
-
-def _take_step(model, criterion, optimizer, inputs, labels, is_train):
-    
-    # zero the parameter gradients
-    optimizer.zero_grad()
-
-    # forward
-    # track history if only in train
-    with torch.set_grad_enabled(is_train):
-        outputs = model(inputs)
-        _, preds = torch.max(outputs, 1)
-        loss = criterion(outputs, labels)
-
-        # backward + optimize only if in training phase
-        if is_train:
-            loss.backward()
-            optimizer.step()
-    
-    return preds, loss
-
-
-def _add_scope(scope, k):
-    return scope + '/' + k
-    
-
-def _add_scope_gen(scope):
-    return lambda k: _add_scope(scope, k)
-
-
-def _log_model_params_verbose(writer, model, run_num, scope, use_hist = False):
-    def write(tag, param):
-        fn = writer.add_histogram if use_hist else writer.add_scalar
-        param = param if use_hist else param.abs().mean()
-        return fn(tag, param, run_num)
-    
-    with torch.no_grad():
-        for (name, param) in model.named_parameters():
-            p(name, 
-              _add_scope_gen(scope),
-              lambda tag: write(tag, param)
-             )
-
-
-def _log_lr(writer, epoch, scheduler):
-    lr = p(scheduler.get_lr(), np.array)[0]
-    p('lr', 
-        _add_scope_gen('lr'),
-        lambda _: writer.add_scalar(_, lr, epoch)
-        )
-    p('log10_lr',
-        _add_scope_gen('lr'),
-        lambda _: writer.add_scalar(_, log10(lr), epoch)
-        )
-
-
-def _log_epoch_phase_stats(writer, epoch, scope, epoch_loss, epoch_acc):  
-
-    log_measure = lambda k, v: p(k,
-                                 _add_scope_gen(scope),
-                                 lambda _ : writer.add_scalar(_, v, epoch)
-                                )
-    
-    log_measure('loss', epoch_loss)
-    log_measure('accuracy', epoch_acc)
-
-    print('{} Loss: {:.4f} Acc: {:.4f}'.format(
-        scope, epoch_loss, epoch_acc))
-    
-
-def _log_coef_diffs(writer, epoch, prev_model_state, curr_model_state):
-    def write(name, curr):
-        diff = curr - prev_model_state[name]
-        p(name,
-            _add_scope_gen('params'),
-            lambda _: writer.add_scalar(
-                _ + '.diff', diff.abs().mean(), epoch)
-        )
-
-    with torch.no_grad():
-        for name in curr_model_state:
-            if ('weight' in name or 'bias' in name): 
-                write(name, curr_model_state[name])
-
-
+                torch.save(model.state_dict(), model_name + '.pt')
+                
+                np.savetxt(model_name + '.txt', [best_acc])
