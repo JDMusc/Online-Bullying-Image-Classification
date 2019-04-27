@@ -12,6 +12,8 @@ from torchvision import datasets, models, transforms
 
 import numpy as np
 
+import imagehelpers
+
 
 def findParam(model, name_filter):
     if callable(name_filter):
@@ -46,28 +48,20 @@ def create_data_transforms(crop_size, resize=None,
             transforms.RandomResizedCrop(crop_size),
             transforms.Resize(resize),
             transforms.RandomHorizontalFlip(),
-            transforms.CenterCrop(crop_size),
+            imagehelpers.TopCenterCrop,
             transforms.ToTensor(),
-            transforms.Normalize(mn, sd)
+            imagehelpers.PerImageNorm
         ]),
         'val': transforms.Compose([
-            transforms.Grayscale(),
-            transforms.Resize(resize),
-            transforms.CenterCrop(crop_size),
-            transforms.ToTensor(),
-            transforms.Normalize(mn, sd)
+            imagehelpers.createTransformList()
         ]),
     }
 
     if not data_augment:
-        data_transforms['train'] = transforms.Compose([
-            transforms.Grayscale(),
-            transforms.Resize(resize),
-            transforms.RandomHorizontalFlip(),
-            transforms.CenterCrop(crop_size),
-            transforms.ToTensor(),
-            transforms.Normalize(mn, sd)
-        ])
+        data_transforms['train'] = transforms.Compose(
+            [transforms.RandomHorizontalFlip()] +
+            imagehelpers.createTransformList()
+            )
     
     return data_transforms
 

@@ -3,14 +3,77 @@ from PIL import Image
 import shutil
 from toolz import pipe as p
 
+import matplotlib.pyplot as plt
 import numpy as np
+import scipy.misc
 from torchvision import transforms
+import torchvision.transforms.functional as TF
+
 
 def loadImage(img_f):
     return Image.open(img_f)
 
 
-def writeTransformedImages(src_dir, dest_dir, transforms, n = 10):
+def topCenterCrop(img, new_h = 224, new_w = 224):
+    w = img.size[0]
+
+    i = 0
+    j = int( (w-new_w)/2 )
+    return TF.crop(img, i, j, new_h, new_w)
+
+TopCenterCrop = transforms.Lambda(topCenterCrop)
+
+
+def perImageNorm(tensor):
+    mn = [tensor.mean()]
+    sd = [tensor.std()]
+    return TF.normalize(tensor, mn, sd)
+
+PerImageNorm = transforms.Lambda(perImageNorm)
+
+
+def reAddMean(tensor, mn):
+    return TF.normalize(tensor, mn, 1)
+
+ReAddMean = transforms.Lambda(reAddMean)
+
+
+def tensorToData(tensor):
+    return tensor.numpy().transpose(1, 2, 0)
+
+
+def imageToData(image, n_channels=3):
+    convert_t = transforms.Compose([
+        transforms.ToTensor()
+    ])
+    
+    return p(image, convert_t, tensorToData)
+
+
+def createTransformList(use_original = False, shift_positive = False):
+
+    ShiftPositive = transforms.Lambda(lambda tensor: tensor + tensor.min().abs())
+
+    Identity = transforms.Lambda(lambda _: _)
+
+    transforms_list = [
+    transforms.Grayscale(),
+    transforms.Resize(240),
+    transforms.CenterCrop(224) if use_original else TopCenterCrop,
+    transforms.ToTensor(),
+    transforms.Normalize([.5], [.5]) if use_original else PerImageNorm,
+    ShiftPositive if shift_positive else Identity
+    ]
+
+    return transforms_list
+
+
+def writeTransformedImages(src_dir, dest_dir, 
+        use_original = False, n = 10):
+    img_transform = transforms.Compose(
+        createTransformList(use_original=use_original)
+    )
+
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
 
@@ -34,11 +97,11 @@ def writeTransformedImages(src_dir, dest_dir, transforms, n = 10):
 
         for src_f in src_dir_fs:
             src_img = Image.open(src_f)
-            dest_img = transforms(src_img)
+            dest_img = p(src_img, img_transform, np.squeeze)
 
             base_src = os.path.basename(src_f)
             dest_f = fullDest(base_src)
-            dest_img.save(dest_f)
+            plt.imsave(dest_f, dest_img, cmap="gray")
 
             #copy src file, easier to compare
             p(dest_f, 
