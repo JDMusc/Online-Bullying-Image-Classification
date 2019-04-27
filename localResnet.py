@@ -35,7 +35,16 @@ def preResLayer(out_channels = 64):
     )
 
     
-def postResLayer(in_channels, num_classes):
+def postResLayer(in_channels, num_classes, dropout_p = None):
+    blocks = [
+            nn.AdaptiveAvgPool2d( (1,1) ),
+            Lambda(flatten)]
+
+    if dropout_p is not None:
+        blocks.append(nn.Dropout(p=dropout_p))
+
+    blocks.append(nn.Linear(in_channels, num_classes))
+
     return nn.Sequential(
         nn.AdaptiveAvgPool2d( (1,1) ),
         Lambda(flatten),
@@ -68,8 +77,6 @@ class ResNet(nn.Module):
         
         blocks = []
         
-        if p is not None:
-            blocks.append(nn.Dropout(p=p))
         
         blocks.append(makeBlock(in_channels, in_channels, block_sizes[0], stride=1))
         
@@ -81,7 +88,7 @@ class ResNet(nn.Module):
             
         self.blocks = nn.Sequential(*blocks)
         
-        self.postres = postResLayer(out_channels, num_classes)
+        self.postres = postResLayer(out_channels, num_classes, dropout_p = p)
                 
                 
     def forward(self, x):
