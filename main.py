@@ -16,23 +16,21 @@ import dropoutRuns
 import localResnet
 import trainModel
 
-device = torch.device("cuda")
 
-#data_dir = 'main_train_set/'
-data_dir = 'scrap_data2000/'
+#default_data_dir = 'main_train_set/'
+default_data_dir = 'scrap_data2000/'
 
 def createDataLoaders(data_dir, data_augment = True):
     return trainModel.create_dataloaders(data_dir, data_augment=data_augment)
 
 
-image_datasets, dataloaders, dataset_sizes = createDataLoaders(data_dir)
-class_names = image_datasets['train'].classes
-n_classes = len(class_names)
+def defaultModel(device = torch.device("cuda")): 
+    n_classes = 10
+    return localResnet.ResNet([2, 2, 2, 2], n_classes, p=.2, in_channels = 32).to(device)
 
-defaultModel = localResnet.ResNet([2, 2, 2, 2], n_classes, p=.2, in_channels = 32).to(device)
-
-def runIt(log_params_verbose = False, model = defaultModel, model_state_f = None, 
+def run(log_params_verbose = False, model = defaultModel(), model_state_f = None, 
         data_augment = True,
+        data_dir = default_data_dir,
         lr = .01, lr_epoch_size = 25, lr_gamma = .1,
         num_epochs_per_run = 25,
         start_run = 0, num_runs = 50):
@@ -43,7 +41,7 @@ def runIt(log_params_verbose = False, model = defaultModel, model_state_f = None
     _, dataloaders, dataset_sizes = createDataLoaders(data_dir,
         data_augment=data_augment)
 
-    (model, best_acc, lr) = dropoutRuns.trainTheModel(model = model, 
+    (model, _, lr) = dropoutRuns.trainTheModel(model = model, 
             cutoff_acc = .96,
             dataloaders = dataloaders, dataset_sizes = dataset_sizes,
             log_dir_base = 'runs/model_data',
