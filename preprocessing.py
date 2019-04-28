@@ -54,6 +54,7 @@ def createDataTransforms(crop_size, resize=None,
     return data_transforms
 
 def createDataloaders(data_dir, input_size=224, 
+        batch_size = 32,
         data_augment = True,
         folders = dict(train='train', val = 'val')):
     xs = ['train', 'val']
@@ -67,7 +68,7 @@ def createDataloaders(data_dir, input_size=224,
                           )
                       for x in xs}
 
-    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size,
                                                  shuffle=True, num_workers = 4)
                    for x in xs}
 
