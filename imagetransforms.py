@@ -1,4 +1,4 @@
-from toolz import pipe as p
+from toolz import pipe as p, identity
 
 import numpy as np
 from scipy import ndimage
@@ -30,6 +30,8 @@ PerImageNorm = transforms.Lambda(perImageNorm)
 
 def tensorToData(tensor):
     return tensor.numpy().transpose(1, 2, 0).squeeze()
+
+ToNumpy = transforms.Lambda(tensorToData)
 
 
 def imageToData(image, n_channels=3):
@@ -97,3 +99,22 @@ def centerOnlyMatrix(n):
     m1[center][center] = 1
 
     return m1
+
+
+Identity = transforms.Lambda(identity)
+
+def toRGB(tensor):
+    n_channels = 1
+    if len(tensor.shape) > 2:
+        n_channels = tensor.shape[0]
+
+    if n_channels == 3:
+        return tensor
+    elif n_channels == 1:
+        return torch.stack([tensor, tensor, tensor], 1).squeeze()
+    elif n_channels == 4:
+        return tensor[0:3,:,:]
+    else:
+        raise ValueError(str(n_channels) + ' invalid number of channels')
+
+RGB = transforms.Lambda(toRGB)
