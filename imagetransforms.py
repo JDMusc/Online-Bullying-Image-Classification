@@ -39,8 +39,8 @@ def imageToData(image, n_channels=3):
     return p(image, convert_t, tensorToData)
 
 
-def gaussianBlur(arr, sigma):
-    return ndimage.gaussian_filter(arr, sigma = sigma)
+def gaussianBlur(tensor, sigma):
+    return p(ndimage.gaussian_filter(tensor, sigma = sigma), TF.to_tensor)
 
 def GaussianBlur(sigma):
         return p(lambda _: gaussianBlur(_, sigma),
@@ -48,9 +48,9 @@ def GaussianBlur(sigma):
                 transforms.Lambda)
 
 
-def sharpen(arr, alpha, sigma):
-    blurred = ndimage.gaussian_filter(arr, sigma)
-    return arr + alpha * (arr - blurred)
+def sharpen(tensor, alpha, sigma):
+    blurred = p(ndimage.gaussian_filter(tensor, sigma), TF.to_tensor)
+    return tensor + alpha * (tensor - blurred)
 
 def Sharpen(alpha, sigma):
     return p(
@@ -61,13 +61,10 @@ def Sharpen(alpha, sigma):
 
 
 def numpyFnToTorchFn(np_fn):
-        return lambda tensor: p(tensor,
-                tensorToData,
-                np_fn,
-                TF.to_tensor)
+        return lambda tensor: np_fn(tensor.squeeze())
 
 
-def unsharpen(arr):
+def unsharpen(tensor):
     kernel = np.array([
             [1, 4, 6, 4, 1],
             [4, 16, 24, 16, 4],
@@ -76,6 +73,6 @@ def unsharpen(arr):
             [1, 4, 6, 4, 1]
         ], np.float32) / -256.0
     
-    return ndimage.convolve(arr, kernel)
+    return p(ndimage.convolve(tensor, kernel), TF.to_tensor)
 
 Unsharpen = p(unsharpen, numpyFnToTorchFn, transforms.Lambda)
