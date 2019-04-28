@@ -2,6 +2,7 @@ from toolz import pipe as p
 
 import numpy as np
 from scipy import ndimage
+import torch
 from torchvision import transforms
 import torchvision.transforms.functional as TF
 
@@ -73,6 +74,16 @@ def unsharpen(tensor):
             [1, 4, 6, 4, 1]
         ], np.float32) / -256.0
     
-    return p(ndimage.convolve(tensor, kernel), TF.to_tensor)
+    filter = torch.tensor(kernel).unsqueeze(0).unsqueeze(0)
+    n_dim = len(tensor.shape)
+    n_squeeze = 4 - n_dim
+    for _ in range(0, n_squeeze):
+        tensor = tensor.unsqueeze(0)
+    
+    ret = torch.conv2d(tensor, filter)
+    for _ in range(0, n_squeeze):
+        ret = ret.squeeze()
+        
+    return ret
 
 Unsharpen = p(unsharpen, numpyFnToTorchFn, transforms.Lambda)
