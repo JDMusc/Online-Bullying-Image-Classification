@@ -35,7 +35,7 @@ def createDataTransforms(crop_size, resize=None,
             ] +
             augmentBaseTransforms(
                 [transforms.RandomChoice(
-                    [it.Sharpen(30, 1), it.Unsharpen, 
+                    [it.Sharpen(1, 30), it.Unsharpen, 
                         it.GaussianBlur(3)])],
                 random_resize=True
             )
