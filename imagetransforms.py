@@ -42,11 +42,11 @@ def imageToData(image, n_channels=3):
 
 def gaussianBlur(tensor, sigma):
     kernel = p(centerOnlyMatrix(5),
-        lambda _: ndimage.gaussian_filter(_, sigma = sigma))
+        lambda _: ndimage.gaussian_filter(_, sigma = sigma)).astype(np.float32)
     return convolve2d(tensor, kernel)
 
 def GaussianBlur(sigma):
-    transforms.Lambda(lambda _: gaussianBlur(_, sigma))
+    return transforms.Lambda(lambda _: gaussianBlur(_, sigma))
 
 
 def sharpen(tensor, alpha, sigma):
@@ -54,7 +54,7 @@ def sharpen(tensor, alpha, sigma):
     return tensor + alpha * (tensor - blurred)
 
 def Sharpen(alpha, sigma):
-    transforms.Lambda(lambda _: sharpen(_, alpha, sigma))
+    return transforms.Lambda(lambda _: sharpen(_, alpha, sigma))
 
 
 def unsharpen(tensor):
@@ -75,14 +75,15 @@ def convolve2d(tensor, kernel):
     filter = torch.tensor(kernel).unsqueeze(0).unsqueeze(0)
 
     n_dim = len(tensor.shape)
-    n_squeeze = 4 - n_dim
-    for _ in range(0, n_squeeze):
+    n_unsqueeze = 4 - n_dim
+    for _ in range(0, n_unsqueeze):
         tensor = tensor.unsqueeze(0)
     
-    ret = torch.conv2d(tensor, filter)
+    ret = torch.conv2d(tensor, filter, padding = 2)
+    n_squeeze = len(ret.shape) - 3
     for _ in range(0, n_squeeze):
-        ret = ret.squeeze()
-        
+        ret = ret.squeeze(0)
+    
     return ret
 
 
