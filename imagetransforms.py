@@ -41,28 +41,20 @@ def imageToData(image, n_channels=3):
 
 
 def gaussianBlur(tensor, sigma):
-    return p(ndimage.gaussian_filter(tensor, sigma = sigma), TF.to_tensor)
+    kernel = p(centerOnlyMatrix(5),
+        lambda _: ndimage.gaussian_filter(_, sigma = sigma))
+    return convolve2d(tensor, kernel)
 
 def GaussianBlur(sigma):
-        return p(lambda _: gaussianBlur(_, sigma),
-                numpyFnToTorchFn,
-                transforms.Lambda)
+    transforms.Lambda(lambda _: gaussianBlur(_, sigma))
 
 
 def sharpen(tensor, alpha, sigma):
-    blurred = p(ndimage.gaussian_filter(tensor, sigma), TF.to_tensor)
+    blurred = gaussianBlur(tensor, sigma)
     return tensor + alpha * (tensor - blurred)
 
 def Sharpen(alpha, sigma):
-    return p(
-            lambda _: sharpen(_, alpha, sigma),
-            numpyFnToTorchFn,
-            transforms.Lambda
-        )
-
-
-def numpyFnToTorchFn(np_fn):
-        return lambda tensor: np_fn(tensor.squeeze())
+    transforms.Lambda(lambda _: sharpen(_, alpha, sigma))
 
 
 def unsharpen(tensor):
@@ -74,7 +66,14 @@ def unsharpen(tensor):
             [1, 4, 6, 4, 1]
         ], np.float32) / -256.0
     
+    return convolve2d(tensor, kernel)
+
+Unsharpen = transforms.Lambda(unsharpen)
+
+
+def convolve2d(tensor, kernel):
     filter = torch.tensor(kernel).unsqueeze(0).unsqueeze(0)
+
     n_dim = len(tensor.shape)
     n_squeeze = 4 - n_dim
     for _ in range(0, n_squeeze):
@@ -86,4 +85,14 @@ def unsharpen(tensor):
         
     return ret
 
-Unsharpen = p(unsharpen, numpyFnToTorchFn, transforms.Lambda)
+
+def centerOnlyMatrix(n):
+    is_odd = n % 2 != 0
+    if not is_odd:
+        raise ValueError('n must be odd')
+        
+    m1 = np.zeros( (n,n))
+    center = int(n/2)
+    m1[center][center] = 1
+
+    return m1
