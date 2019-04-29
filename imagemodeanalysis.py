@@ -4,9 +4,6 @@ import shutil
 from toolz import identity, pipe as p
 
 import pandas as pd
-from torchvision import transforms
-
-import imagetransforms as it
 
 
 def createImageModeTable():
@@ -64,13 +61,3 @@ def overClassFolders(src_dir, map_fn = identity,
         c in os.listdir(src_dir) if p(c, joinSrc, os.path.isdir)
         for f in p(c, joinSrc, os.listdir) if p(joinSrc(c, f), file_filter_fn)
         ]
-
-
-def writeImagesInColor(src_dir, dest_dir, n = None):
-    img_transform = transforms.Compose(
-        [transforms.ToTensor(),
-        it.RGB,
-        it.ToNumpy]
-    )
-
-    writeTransformedImages(src_dir, dest_dir, img_transform, n = n)

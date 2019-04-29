@@ -1,0 +1,2 @@
+dest_dir = 'image_data_val_sample'
+viewValTransformedImages(dest_dir, src_dir = 'image_data/', n = 10)

@@ -1,0 +1,2 @@
+itv.viewValTransformedImages(
+    'image_data_val_sample_gray', 'image_data_gray', n = None)

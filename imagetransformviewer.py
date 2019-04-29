@@ -5,11 +5,15 @@ from toolz import pipe as p
 
 import matplotlib.pyplot as plt
 import numpy as np
+from torchvision import transforms
+
+import imagetransforms as it
+import preprocessing as pp
 
 
 def writeTransformedImage(src_f, dest_f, img_transform):
     dest_img = transformImage(src_f, img_transform)
-    plt.imsave(dest_f, dest_img, cmap="gray")
+    plt.imsave(dest_f, dest_img)
 
     #copy src file, easier to compare
     p(appendToName(dest_f, 'original'), 
@@ -17,7 +21,7 @@ def writeTransformedImage(src_f, dest_f, img_transform):
 
 
 def transformImage(src_f, img_transform):
-    return p(src_f, Image.open, img_transform, np.squeeze)
+    return p(src_f, Image.open, img_transform, it.ToNumpy, np.squeeze)
 
 
 def writeTransformedImages(src_dir, dest_dir, img_transform,
@@ -51,3 +55,22 @@ def writeTransformedImages(src_dir, dest_dir, img_transform,
 def appendToName(f_name, app):
     (f_name_pre_ext, ext) = os.path.splitext(f_name)
     return f_name_pre_ext + '_' + app + ext
+
+
+def writeImagesInColor(src_dir, dest_dir, n = None):
+    img_transform = transforms.Compose(
+        [transforms.ToTensor(),
+        it.RGB,
+        it.ToNumpy]
+    )
+
+    writeTransformedImages(src_dir, dest_dir, img_transform, n = n)
+
+
+def viewValTransformedImages(dest_dir, src_dir = 'image_data/', n = 10):
+    img_transform = pp.createDataTransforms(224)['val']
+    writeTransformedImages(src_dir, dest_dir, img_transform, n= n)
+
+
+def viewFnTransformedImages(dest_dir, src_dir = 'image_data/', n=10):
+    img_transform = pp.augmentBaseTransforms()

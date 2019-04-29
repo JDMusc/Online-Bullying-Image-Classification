@@ -7,21 +7,20 @@ from torchvision import datasets, transforms
 
 import imagetransforms as it
 
-def baseTransformList(use_standard = False, random_resize = False):
-    rz = transforms.Resize(240)
-    if random_resize:
-        rz = transforms.RandomResizedCrop(240, scale = (.4, 1.0))
+def baseTransformList(use_standard = False):
     return [
-        transforms.Grayscale(),
-        rz,
-        transforms.CenterCrop(224) if use_standard else it.TopCenterCrop(),
+        transforms.Resize( (224,224) ),
         transforms.ToTensor(),
-        transforms.Normalize([.5], [.5]) if use_standard else it.PerImageNorm
+        it.RGB,
+        it.PerImageNorm
     ]
 
 
 def augmentBaseTransforms(tforms, random_resize = False):
-    tl = baseTransformList(random_resize=random_resize)
+    tl = baseTransformList()
+    if random_resize:
+        tl[0] = transforms.RandomResizedCrop(224, scale = (.4, 1.0))
+
     return tl[0:-1] + tforms + [tl[-1]]
 
 
@@ -35,8 +34,13 @@ def createDataTransforms(crop_size, resize=None,
             ] +
             augmentBaseTransforms(
                 [transforms.RandomChoice(
-                    [it.Sharpen(1, 30), it.Unsharpen, 
-                        it.GaussianBlur(3)])],
+                    [it.Sharpen(1, 30), 
+                        it.Unsharpen, 
+                        it.GaussianBlur(3),
+                        it.Identity,
+                        it.Average((3,7))
+                    ]
+                )],
                 random_resize=True
             )
         ),
