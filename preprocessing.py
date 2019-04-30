@@ -1,4 +1,5 @@
 from toolz import pipe as p
+import PIL
 
 import numpy as np
 import os
@@ -7,42 +8,43 @@ from torchvision import datasets, transforms
 
 import imagetransforms as it
 
-def baseTransformList(use_standard = False):
+SIZE = (224, 224)
+
+def baseTransformList(random_resize = False):
+    interp = PIL.Image.BILINEAR
+    if random_resize:
+        interp = p(range(0, 5), np.random.choice)
+
     return [
-        transforms.Resize( (224,224) ),
+        it.ResizePIL(SIZE, interp),
         transforms.ToTensor(),
         it.RGB,
         it.PerImageNorm
     ]
 
 
-def augmentBaseTransforms(tforms, random_resize = False):
-    tl = baseTransformList()
-    if random_resize:
-        tl[0] = transforms.RandomResizedCrop(224, scale = (.4, 1.0))
-
-    return tl[0:-1] + tforms + [tl[-1]]
+def augmentBaseTransforms(tforms, start_ix, random_resize = False):
+    tl = baseTransformList(random_resize=random_resize)
+    return tl[0:start_ix] + tforms + tl[start_ix:]
 
 
-def createDataTransforms(crop_size, resize=None, 
-                           data_augment = True):
-    resize = crop_size + 26 if resize is None else resize
+def createDataTransforms(data_augment = True):
     data_transforms = {
         'train': transforms.Compose(
-            [transforms.RandomHorizontalFlip(),
-            transforms.ColorJitter(),
-            ] +
             augmentBaseTransforms(
-                [transforms.RandomChoice(
-                    [it.Sharpen(1, 30), 
-                        it.Unsharpen, 
-                        it.GaussianBlur(3),
-                        it.Identity,
-                        it.Average((3,7))
-                    ]
-                )],
-                random_resize=True
-            )
+                [
+                    transforms.RandomHorizontalFlip(),
+                    transforms.RandomApply([transforms.ColorJitter()]),
+                    transforms.RandomChoice(
+                        [
+                            it.SharpenPIL,
+                            it.UnsharpenPIL, 
+                            it.GaussianBlurPIL(3),
+                            it.Identity,
+                            it.AvgBlurPIL(5)
+                        ]
+                    )
+                ], start_ix = 1, random_resize=True)
         ),
         'val': transforms.Compose(
             baseTransformList()
@@ -57,14 +59,14 @@ def createDataTransforms(crop_size, resize=None,
     
     return data_transforms
 
+
 def createDataloaders(data_dir, input_size=224, 
         batch_size = 32,
         data_augment = True,
         folders = dict(train='train', val = 'val')):
     xs = ['train', 'val']
 
-    data_transforms = createDataTransforms(input_size, input_size,
-                                            data_augment=data_augment)
+    data_transforms = createDataTransforms(data_augment=data_augment)
     
     image_datasets = {x: p(data_dir, 
                            lambda _:os.path.join(_, folders[x]),

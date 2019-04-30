@@ -25,13 +25,17 @@ def transformImage(src_f, img_transform):
 
 
 def writeTransformedImages(src_dir, dest_dir, img_transform,
-        n = 10):
+        n = 10, scale0to1 = True):
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
 
     addRootGen = lambda r: lambda *_: os.path.join(r, *_)
     addSrc = addRootGen(src_dir)
     addDest = addRootGen(dest_dir)
+
+    #facilitate viewing
+    if scale0to1:
+        img_transform.transforms.append(it.Scale0To1)
 
     classes = [d for d in os.listdir(src_dir) if p(d, addSrc, os.path.isdir)]
     for c in classes:
@@ -68,9 +72,10 @@ def writeImagesInColor(src_dir, dest_dir, n = None):
 
 
 def viewValTransformedImages(dest_dir, src_dir = 'image_data/', n = 10):
-    img_transform = pp.createDataTransforms(224)['val']
+    img_transform = pp.createDataTransforms()['val']
     writeTransformedImages(src_dir, dest_dir, img_transform, n= n)
 
 
-def viewFnTransformedImages(dest_dir, src_dir = 'image_data/', n=10):
-    img_transform = pp.augmentBaseTransforms()
+def viewTrainTransformedImages(dest_dir, src_dir = 'image_data/', n=10):
+    img_transform = pp.createDataTransforms()['train']
+    writeTransformedImages(src_dir, dest_dir, img_transform, n = n)

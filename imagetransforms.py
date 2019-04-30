@@ -1,3 +1,4 @@
+from PIL import ImageFilter
 from toolz import pipe as p, identity
 
 from matplotlib import colors
@@ -74,38 +75,25 @@ def sharpen(tensor, alpha, sigma):
 def Sharpen(alpha, sigma):
     return transforms.Lambda(lambda _: sharpen(_, alpha, sigma))
 
-def sharpenRGB(tensor, alpha, sigma):
-    hsv_tensor = rgbToHsvTensor(tensor)
-    hsv_tensor[2, :, :] = .5
-    #hsv_tensor[2, :, :] = sharpen(hsv_tensor[2, :, :], 
-    #    alpha, 
-    #    sigma)
-    
-    #neg_ixs = hsv_tensor[2, :, :] < 0
-    #gt1_ixs = hsv_tensor[2, :, :] > 1
-    #hsv_tensor[neg_ixs, :, :] = 0
-    #hsv_tensor[gt1_ixs, :, :] = 1
-    
-    return hsvToRgbTensor(hsv_tensor)
 
-def rgbToHsvTensor(tensor):
-    return p(tensor, 
-        tensorToData,
-        colors.rgb_to_hsv,
-        lambda _: _.transpose(2, 0, 1),
-        torch.tensor)
+def ImageProcessPIL(img_filter):
+    return transforms.Lambda(lambda img: img.filter(img_filter))
 
-def hsvToRgbTensor(tensor):
-    return p(tensor,
-        tensorToData, 
-        colors.hsv_to_rgb,
-        lambda _: _.transpose(2, 0, 1),
-        torch.tensor,
-        lambda _: expand(_, len(tensor.shape))
+SharpenPIL = ImageProcessPIL(ImageFilter.SHARPEN)
+UnsharpenPIL = ImageProcessPIL(ImageFilter.UnsharpMask)
+def GaussianBlurPIL(radius): 
+    return ImageProcessPIL(ImageFilter.GaussianBlur(radius=radius))
+def AvgBlurPIL(radius):
+    return p(radius, ImageFilter.BoxBlur, ImageProcessPIL)
+
+def ConvertPIL(mode):
+    return transforms.Lambda(lambda img: img.convert(mode))
+
+
+def ResizePIL(size, resample_method):
+    return transforms.Lambda(
+        lambda img: img.resize(size, resample_method)
     )
-
-def SharpenRGB(alpha, sigma):
-    return transforms.Lambda(lambda _: sharpenRGB(_, alpha, sigma))
 
 
 def unsharpen(tensor):
