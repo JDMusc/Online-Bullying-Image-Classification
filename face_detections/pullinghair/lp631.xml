@@ -1,0 +1,38 @@
+<annotation>
+	<folder>pullinghair</folder>
+	<filename>lp631.jpg</filename>
+	<path>C:/Users/anamu/OneDrive/Desktop/Biomedical Data Science and Informatics/2019 Spring/CPSC 8810 Deep Learning/Project/Labelled Image/pullinghair/lp631.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<segmented/>
+	<size>
+		<width>390</width>
+		<height>260</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>victim</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>89</xmin>
+			<ymin>96</ymin>
+			<xmax>133</xmax>
+			<ymax>149</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>victim</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>251</xmin>
+			<ymin>65</ymin>
+			<xmax>292</xmax>
+			<ymax>120</ymax>
+		</bndbox>
+	</object>
+</annotation>

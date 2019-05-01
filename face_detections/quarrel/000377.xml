@@ -1,0 +1,38 @@
+<annotation>
+	<folder>quarrel</folder>
+	<filename>000377.jpg</filename>
+	<path>C:/Users/anamu/OneDrive/Desktop/Biomedical Data Science and Informatics/2019 Spring/CPSC 8810 Deep Learning/Project/Labelled Image/quarrel/000377.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<segmented/>
+	<size>
+		<width>337</width>
+		<height>240</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>victim</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>58</xmin>
+			<ymin>10</ymin>
+			<xmax>129</xmax>
+			<ymax>131</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>victim</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>217</xmin>
+			<ymin>8</ymin>
+			<xmax>293</xmax>
+			<ymax>147</ymax>
+		</bndbox>
+	</object>
+</annotation>

@@ -1,0 +1,26 @@
+<annotation>
+	<folder>slapping</folder>
+	<filename>slapping0222.jpg</filename>
+	<path>C:/Users/anamu/OneDrive/Desktop/Biomedical Data Science and Informatics/2019 Spring/CPSC 8810 Deep Learning/Project/Labelled Image/slapping/slapping0222.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<segmented/>
+	<size>
+		<width>976</width>
+		<height>650</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>victim</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>404</xmin>
+			<ymin>75</ymin>
+			<xmax>819</xmax>
+			<ymax>458</ymax>
+		</bndbox>
+	</object>
+</annotation>

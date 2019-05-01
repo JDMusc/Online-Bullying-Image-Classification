@@ -1,0 +1,26 @@
+<annotation>
+	<folder>gossiping</folder>
+	<filename>gossiping0083.jpg</filename>
+	<path>C:/Users/anamu/OneDrive/Desktop/Biomedical Data Science and Informatics/2019 Spring/CPSC 8810 Deep Learning/Project/Labelled Image/gossiping/gossiping0083.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<segmented/>
+	<size>
+		<width>2716</width>
+		<height>1810</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>victim</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>1641</xmin>
+			<ymin>368</ymin>
+			<xmax>2422</xmax>
+			<ymax>1523</ymax>
+		</bndbox>
+	</object>
+</annotation>

@@ -1,0 +1,26 @@
+<annotation>
+	<folder>nonbullying</folder>
+	<filename>friendly0065.jpg</filename>
+	<path>C:/Users/anamu/OneDrive/Desktop/Biomedical Data Science and Informatics/2019 Spring/CPSC 8810 Deep Learning/Project/Labelled Image/nonbullying/friendly0065.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<segmented/>
+	<size>
+		<width>296</width>
+		<height>170</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>victim</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>102</xmin>
+			<ymin>29</ymin>
+			<xmax>173</xmax>
+			<ymax>128</ymax>
+		</bndbox>
+	</object>
+</annotation>

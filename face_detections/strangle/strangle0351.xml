@@ -1,0 +1,26 @@
+<annotation>
+	<folder>strangle</folder>
+	<filename>strangle0351.jpg</filename>
+	<path>C:/Users/anamu/OneDrive/Desktop/Biomedical Data Science and Informatics/2019 Spring/CPSC 8810 Deep Learning/Project/Labelled Image/strangle/strangle0351.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<segmented/>
+	<size>
+		<width>890</width>
+		<height>500</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>victim</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>331</xmin>
+			<ymin>73</ymin>
+			<xmax>573</xmax>
+			<ymax>359</ymax>
+		</bndbox>
+	</object>
+</annotation>

@@ -1,0 +1,26 @@
+<annotation>
+	<folder>stabbing</folder>
+	<filename>stabbing0019.jpg</filename>
+	<path>C:/Users/anamu/OneDrive/Desktop/Biomedical Data Science and Informatics/2019 Spring/CPSC 8810 Deep Learning/Project/Labelled Image/stabbing/stabbing0019.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<segmented/>
+	<size>
+		<width>1324</width>
+		<height>883</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>victim</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>460</xmin>
+			<ymin>204</ymin>
+			<xmax>618</xmax>
+			<ymax>373</ymax>
+		</bndbox>
+	</object>
+</annotation>

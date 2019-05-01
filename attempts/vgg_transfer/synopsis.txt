@@ -1,0 +1,73 @@
+vgg = models.vgg19(pretrained=True)
+
+for param in vgg.parameters():           
+    ...:     param.requires_grad = False 
+
+n_inputs = 4096
+
+vgg.classifier[6] = nn.Sequential(            
+     nn.Linear(n_inputs, 256),
+     nn.ReLU(),
+     nn.Dropout(0.2),
+     nn.Linear(256, 100),
+     nn.ReLU(),
+     nn.Dropout(.2),
+     nn.Linear(100, 9),
+     nn.LogSoftmax(dim = 1))
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.0001, num_runs=10, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25) 
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00005, num_runs=10, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=10) 
+
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00005, num_runs=10, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=20)                        
+                          
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00005, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=30)      
+
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00005, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=35)                         
+                          
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=40, model_state_f='model_34.pt')            
+                              
+
+list(vgg.parameters())[30].requires_grad = True  
+
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=45, model_state_f='model_34.pt')            
+
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=50, model_state_f='model_49.pt')
+
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=55, model_state_f='model_54.pt')
+
+
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=60, model_state_f='model_59.pt')
+
+list(vgg.parameters())[28].requires_grad = True
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=65, model_state_f='model_64.pt')
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=70, model_state_f='model_69.pt')
+
+
+list(vgg.parameters())[31].requires_grad = True
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=75, model_state_f='model_74.pt')
+
+
+
+vggHelpers.unfreezeParam(vgg, 29)
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=80, model_state_f='model_78.pt')
+
+
+vggHelpers.unfreezeParam(vgg, 26)
+
+main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=85, model_state_f='model_84.pt')
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=90, model_state_f='model_89.pt')
