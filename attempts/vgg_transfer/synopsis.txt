@@ -71,3 +71,89 @@ main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, 
 
 
 main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=90, model_state_f='model_89.pt')
+
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=1, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=90, model_state_f='model_89.pt')  
+
+main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=1, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=91, model_state_f='model_90.pt')   
+
+main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=1, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=92, model_state_f='model_91.pt') 
+
+ main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=1, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=93, model_state_f='model_92.pt') 
+
+main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=1, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=94, model_state_f='model_93.pt')   
+
+main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=2, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=95, model_state_f='model_94.pt') 
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=2, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=97, model_state_f='model_96.pt')  
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=1, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=99, model_state_f='model_98.pt')   
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=1, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=100, model_state_f='model_99.pt')  
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=1, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=101, model_state_f='model_100.pt') 
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=1, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=102, model_state_f='model_101.pt') 
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000001, num_runs=1, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=103, model_state_f='model_102.pt') 
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000001, num_runs=1, nu
+   ...: m_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=Tru
+   ...: e, lr_epoch_size=25, start_run=104, model_state_f='model_103.pt') 
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000001, num_runs=1, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=105, model_state_f='model_104.pt') 
+
+main.run(log_params_verbose=False, model=vgg, lr=.000001, num_runs=1, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=106, model_state_f='model_105.pt') 
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000001, num_runs=2, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=107, model_state_f='model_106.pt') 
+
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000001, num_runs=1, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=109, model_state_f='model_108.pt') 
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000001, num_runs=1, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=110, model_state_f='model_109.pt') 
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000001, num_runs=1, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=111, model_state_f='model_110.pt') 
+
+main.run(log_params_verbose=False, model=vgg, lr=.000001, num_runs=2, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=112, model_state_f='model_111.pt') 
+
+main.run(log_params_verbose=False, model=vgg, lr=.000001, num_runs=1, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=114, model_state_f='model_113.pt')
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.000001, num_runs=2, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=False, lr_epoch_size=25, start_run=115, model_state_f='model_114.pt')
