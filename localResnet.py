@@ -4,6 +4,8 @@ from toolz import pipe as p
 from torch import nn
 
 
+N_IMAGE_CHANNELS = 3
+
 def makeConv2d(in_channels, out_channels, kernel_size=3, stride=1,
                padding = 1, bias = False):
     conv = nn.Conv2d(in_channels, out_channels, 
@@ -27,7 +29,7 @@ def makeBn2(num_channels):
 
 def preResLayer(out_channels = 64):
     return nn.Sequential(
-        makeConv2d(1, out_channels, kernel_size=7, 
+        makeConv2d(N_IMAGE_CHANNELS, out_channels, kernel_size=7, 
                    stride=2, padding=3),
         makeBn2(out_channels),
         nn.ReLU(inplace = True),

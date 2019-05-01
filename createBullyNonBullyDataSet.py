@@ -8,9 +8,9 @@ def create(src_dir = 'image_data',
 
     joinSrc = lambda *_: os.path.join(src_dir, *_)
     
-    bully_classes = [c for c in os.listdir(c) 
+    bully_classes = [c for c in os.listdir(src_dir) 
         if p(c, joinSrc, os.path.isdir)
-        and c is not 'nonbullying']
+        and 'nonbully' not in c]
 
     bully_fs = [(c, os.path.join(src_dir, c, f))
         for c in bully_classes
@@ -40,5 +40,4 @@ def create(src_dir = 'image_data',
             os.path.basename,
             lambda _: os.path.join(non_bully_dest_dir, _),
             lambda _: copy(f, _)
-
-        
+        )
