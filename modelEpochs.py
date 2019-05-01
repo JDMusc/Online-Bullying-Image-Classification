@@ -97,6 +97,9 @@ def _run_epoch(model,
         running_loss = 0.0
         running_corrects = 0
 
+        label_counts = dict()
+        label_correct_counts = dict()
+
         for inputs, labels in dataloaders[phase]:
             n_samples[phase] = n_samples[phase] + len(labels)
 
@@ -109,8 +112,17 @@ def _run_epoch(model,
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data)
 
+            for (i, l) in enumerate(labels.data):
+                label_counts[l] = label_counts.get(l, 0) + 1
+                if l == preds[i]:
+                    label_correct_counts[l] = label_correct_counts.get(l, 0) + 1
+
         epoch_loss = running_loss / dataset_sizes[phase]
         epoch_acc = running_corrects.double() / dataset_sizes[phase]
+
+        for i in label_counts.keys():
+            print('count correct for class ' + str(i))
+            print(label_correct_counts.get(i, 0)/label_counts[i])
 
         _log_epoch_phase_stats(writer, epoch, phase, epoch_loss, epoch_acc)
 
