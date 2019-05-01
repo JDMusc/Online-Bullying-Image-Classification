@@ -19,7 +19,8 @@ def baseTransformList(random_resize = False):
         it.ResizePIL(SIZE, interp),
         transforms.ToTensor(),
         it.RGB,
-        it.PerImageNorm
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        #it.PerImageNorm
     ]
 
 
