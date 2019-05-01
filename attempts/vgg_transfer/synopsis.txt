@@ -71,3 +71,10 @@ main.run(log_params_verbose=False, model=vgg.to(device), lr=.00001, num_runs=5, 
 
 
 main.run(log_params_verbose=False, model=vgg, lr=.000005, num_runs=5, num_epochs_per_run=25, data_dir='scrap_data2000_9class/', data_augment=True, lr_epoch_size=25, start_run=90, model_state_f='model_89.pt')
+
+
+
+#prediction analysis
+preds = analyzeModel.predictDir(model, analyze_data_dir='image_data', model_data_dir='scrap_data2000_9class/train')
+
+analyzeModel.classCounts(preds, 'nonbullying')

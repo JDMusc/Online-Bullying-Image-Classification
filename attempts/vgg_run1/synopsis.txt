@@ -1,0 +1,17 @@
+vgg = models.vgg19(pretrained=True)
+vgg = vgg.to('cuda')  
+
+for param in vgg.parameters():    
+    param.requires_grad = False
+
+vgg.classifier[6] = nn.Sequential(
+    nn.Linear(n_inputs, 256),
+    nn.ReLU(),
+    nn.Dropout(0.4),
+    nn.Linear(256, 10),
+    nn.LogSoftmax(dim = 1))
+
+
+main.run(log_params_verbose=False, model=vgg, lr=.0001, num_runs=10, num_epochs_per_run=25, data_dir='scrap_data2000/', data_augment=True, lr_epoch_size=25)
+
+main.run(log_params_verbose=False, model=vgg, lr=.00005, num_runs=10, num_epochs_per_run=25, data_dir='scrap_data2000/', data_augment=True, lr_epoch_size=25, start_run = 10)

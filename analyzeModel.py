@@ -35,7 +35,8 @@ def predict(model, data_dir, model_state_f = None):
     def phasePreds(ph): 
         phase_preds = p(ph,
             lambda _: os.path.join(data_dir, _),
-            lambda _: predictDir(model, data_dir=_))
+            lambda _: predictDir(model, model_data_dir=_)
+            )
         
         phase_preds['phase'] = ph
         return phase_preds
@@ -45,8 +46,17 @@ def predict(model, data_dir, model_state_f = None):
         pd.concat)
 
 
-def predictDir(model, model_state_f = None, data_dir = default_data_dir):
-    dataset = loadDataset(data_dir)
+def predictFileProbs(model, f):
+    return p(f, loadImg, model, torch.softmax)
+
+def predictDir(model, model_state_f = None, model_data_dir = default_data_dir, analyze_data_dir = None):
+
+    #assume analysis set has same structure as train set
+    if analyze_data_dir is None:
+        analyze_data_dir = model_data_dir
+
+    analyze_dataset = loadDataset(analyze_data_dir)
+    model_dataset = loadDataset(model_data_dir)
 
     if model_state_f is not None:
         loadModel(model, model_state_f)
@@ -54,7 +64,7 @@ def predictDir(model, model_state_f = None, data_dir = default_data_dir):
     predIt = lambda f: p(f, loadImg, model, 
             lambda _: torch.max(_, 1)[1])
 
-    preds = pd.DataFrame(dataset.samples, columns = ['file', 'class_ix'])
+    preds = pd.DataFrame(analyze_dataset.samples, columns = ['file', 'class_ix'])
     preds['pred_ix'] = 0
 
     for i in range(0, preds.shape[0]):
@@ -64,12 +74,15 @@ def predictDir(model, model_state_f = None, data_dir = default_data_dir):
         except:
             preds.loc[i, 'pred_ix'] = -1
 
-    ix_to_class = {v:k for (k, v) in dataset.class_to_idx.items()}
-    ix_to_class[-1] = 'NA'
 
-    label_classes = lambda col: [ix_to_class[i] for i in preds[col]]
-    preds['class'] = label_classes('class_ix')
-    preds['pred_class'] = label_classes('pred_ix')
+    def ixToClassFnGen(dataset):
+        ix_to_class = {v:k for (k, v) in dataset.class_to_idx.items()}
+        ix_to_class[-1] = 'NA'
+        return lambda _: ix_to_class[_]
+
+    label_classes = lambda ix_to_class_fn, col: [ix_to_class_fn(i) for i in preds[col]]
+    preds['class'] = p(analyze_dataset, ixToClassFnGen, lambda _: label_classes(_, 'class_ix'))
+    preds['pred_class'] = p(model_dataset, ixToClassFnGen, lambda _: label_classes(_, 'pred_ix'))
 
     return preds
 
@@ -78,6 +91,7 @@ def loadModel(model, model_state_f):
     model_state = p(model_state_f, torch.load)
     model.load_state_dict(model_state)
     model.eval()
+    return model
 
 
 def accuracy(preds, rows = None):

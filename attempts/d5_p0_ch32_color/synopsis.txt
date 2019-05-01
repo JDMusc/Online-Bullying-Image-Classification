@@ -1,0 +1,6 @@
+model = localResnet.ResNet([2, 2, 2, 2], 10, p=None, in_channels = 32).to(device)
+main.run(log_params_verbose=False, model=model, lr=.0001, num_runs=10, num_epochs_per_run=25, data_dir='scrap_data2000/', data_augment=True, lr_epoch_size=25)
+
+main.run(log_params_verbose=False, model=model, lr=.00005, num_runs=10, num_epochs_per_run=25, data_dir='scrap_data2000/', data_augment=True, lr_epoch_size=25, start_run=10)
+
+main.run(log_params_verbose=False, model=model, lr=.00005, num_runs=10, num_epochs_per_run=25, data_dir='scrap_data2000/', data_augment=True, lr_epoch_size=25, start_run=20)
