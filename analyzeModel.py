@@ -75,14 +75,17 @@ def predictDir(model, model_state_f = None, model_data_dir = default_data_dir, a
             preds.loc[i, 'pred_ix'] = -1
 
 
-    def ixToClassFnGen(dataset):
+    def ixToClassFn(dataset):
         ix_to_class = {v:k for (k, v) in dataset.class_to_idx.items()}
         ix_to_class[-1] = 'NA'
-        return lambda _: ix_to_class[_]
+        return ix_to_class
 
-    label_classes = lambda ix_to_class_fn, col: [ix_to_class_fn(i) for i in preds[col]]
-    preds['class'] = p(analyze_dataset, ixToClassFnGen, lambda _: label_classes(_, 'class_ix'))
-    preds['pred_class'] = p(model_dataset, ixToClassFnGen, lambda _: label_classes(_, 'pred_ix'))
+    model_ix_to_class = ixToClassFn(model_dataset)
+    analyze_ix_to_class = ixToClassFn(analyze_dataset)
+
+    label_classes = lambda ix_to_class, col: [ix_to_class[i] for i in preds[col]]
+    preds['class'] = label_classes(analyze_ix_to_class, 'class_ix')
+    preds['pred_class'] = label_classes(model_ix_to_class, 'pred_ix')
 
     return preds
 
