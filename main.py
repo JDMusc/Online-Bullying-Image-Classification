@@ -27,6 +27,7 @@ def defaultModel(device = torch.device("cuda")):
 
 
 def run(log_params_verbose = False, model = defaultModel(), model_state_f = None, 
+        class_imbalance = False,
         data_augment = True,
         data_dir = default_data_dir,
         lr = .01, lr_epoch_size = 25, lr_gamma = .1,
@@ -37,7 +38,7 @@ def run(log_params_verbose = False, model = defaultModel(), model_state_f = None
         model.eval()
 
     _, dataloaders, dataset_sizes = pp.createDataloaders(data_dir, 
-        data_augment=data_augment)
+        data_augment=data_augment, class_imbalance = class_imbalance)
 
     (model, _, lr) = trainModel.train(model = model, 
             cutoff_acc = .96,

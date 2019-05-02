@@ -6,6 +6,8 @@ import os
 import torch
 from torchvision import datasets, transforms
 
+from sampler import ImbalancedDatasetSampler
+
 import imagetransforms as it
 
 SIZE = (224, 224)
@@ -64,7 +66,8 @@ def createDataTransforms(data_augment = True):
 def createDataloaders(data_dir, input_size=224, 
         batch_size = 32,
         data_augment = True,
-        folders = dict(train='train', val = 'val')):
+        folders = dict(train='train', val = 'val'),
+        class_imbalance = False):
     xs = ['train', 'val']
 
     data_transforms = createDataTransforms(data_augment=data_augment)
@@ -75,8 +78,15 @@ def createDataloaders(data_dir, input_size=224,
                           )
                       for x in xs}
 
-    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size,
-                                                 shuffle=True, num_workers = 4)
+    def genDataloaderKwArgs(x):
+        dataloader_kwargs = dict(shuffle = not class_imbalance, 
+                batch_size = batch_size, num_workers = 4)
+        if class_imbalance:
+            dataloader_kwargs['sampler'] = ImbalancedDatasetSampler(image_datasets[x])
+        return dataloader_kwargs
+
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x],
+                                                 **genDataloaderKwArgs(x))
                    for x in xs}
 
     dataset_sizes = {x: len(image_datasets[x]) for x in xs}

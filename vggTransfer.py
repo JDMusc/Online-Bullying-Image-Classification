@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
-def loadVgg(device = "cuda"):
+def loadVgg(n_classes = 9, device = "cuda"):
     device = torch.device(device)
     vgg = models.vgg19(pretrained=True).to(device) 
 
@@ -17,7 +17,7 @@ def loadVgg(device = "cuda"):
             nn.Linear(256, 100),
             nn.ReLU(),
             nn.Dropout(.2),
-            nn.Linear(100, 9),
+            nn.Linear(100, n_classes),
             nn.LogSoftmax(dim = 1))
 
     return vgg.to(device)

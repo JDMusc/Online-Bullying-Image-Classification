@@ -6,14 +6,15 @@ import numpy as np
 from toolz import pipe as p
 
 
-def makeScrapData(classes, dest_dir = None, n_train = 30, n_val = None):
+def makeScrapData(classes, dest_dir = None, n_train = 30, n_val = None, src_dir = 'image_data'):
     if dest_dir is None:
         dest_dir = 'scrap_data' + str(n_train)
 
-    fs = {c: [os.path.join('image_data', c, f) for f in p(os.path.join('image_data', c), os.listdir)]
+    fs = {c: [os.path.join(src_dir, c, f) for f in p(os.path.join(src_dir, c), os.listdir)]
           for c in classes}
     
-    class_percents = classPercentages('image_data', classes)['percent']
+    by_phase = 'train' in os.listdir(src_dir) and 'test' in os.listdir(src_dir)
+    class_percents = classPercentages(src_dir, classes = classes, by_phase= by_phase)['percent']
     
     train_counts = {c: int(class_percents[c]/100 * n_train) for c in classes}
     
@@ -51,9 +52,9 @@ def makeScrapData(classes, dest_dir = None, n_train = 30, n_val = None):
                 shutil.copyfile(f, dest)
             
             
-def classPercentages(data_dir, classes = None):
+def classPercentages(data_dir, by_phase = True, classes = None):
     
-    if data_dir == 'image_data':
+    if not by_phase:
         classes = os.listdir(data_dir) if classes is None else classes
         class_counts = {c: p(os.path.join(data_dir, c), os.listdir, len) for c in classes}
         n_total = sum(class_counts.values())
@@ -64,8 +65,9 @@ def classPercentages(data_dir, classes = None):
     
     xs = ('train', 'val')
     
-    train_dir = os.path.join(data_dir, 'train') if classes is None else classes
-    classes = os.listdir(train_dir)
+    if classes is None:
+        train_dir = os.path.join(data_dir, 'train')
+        classes = os.listdir(train_dir)
     
     folders = {(x,c):os.path.join(data_dir, x, c) for x in xs
           for c in classes}
