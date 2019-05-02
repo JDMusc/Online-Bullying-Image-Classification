@@ -26,6 +26,7 @@ Performance results for non-bullying samples
 * 100% accuracy 10 sample left-out test set
 
 
-__Important Reference Papers__
+__Important Reference Papers__  
+
 [VGG](https://arxiv.org/abs/1409.1556)  
 [How transferable are features in deep neural networks?](https://arxiv.org/abs/1411.1792)
