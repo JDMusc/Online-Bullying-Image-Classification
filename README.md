@@ -20,10 +20,10 @@ Performance results for 10 class prediction
 * 78.2% accuracy 45 sample left-out test set
 
 
-Performance results for non-bullying samples
-* 96.2% accuracy training set
-* 57.1% accuracy validation set  
-* 100% accuracy 10 sample left-out test set
+Performance results for non-bully (1) vs bully (0) 
+* 96.2% TPR/99.7% Accuracy, training set, non-bullying defined as positive
+* 57.1% TPR/97.6% Accuracy, validation set  
+* 100% TPR/98.2% Accuracy, 10 sample left-out test set
 
 
 __Important Reference Papers__  
