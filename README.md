@@ -15,15 +15,15 @@ We tried 2 approaches.
 Approach 2 had better results as discussed in our paper.
 
 Performance results for 10 class prediction 
-    * 97.2% accuracy training set
-    * 77.6% accuracy validation set  
-    * 78.2% accuracy 45 sample left-out test set
+* 97.2% accuracy training set
+* 77.6% accuracy validation set  
+* 78.2% accuracy 45 sample left-out test set
 
 
 Performance results for non-bullying samples
-    * 96.2% accuracy training set
-    * 57.1% accuracy validation set  
-    * 100% accuracy 10 sample left-out test set
+* 96.2% accuracy training set
+* 57.1% accuracy validation set  
+* 100% accuracy 10 sample left-out test set
 
 
 __Important Reference Papers__
