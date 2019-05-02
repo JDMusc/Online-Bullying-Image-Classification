@@ -14,7 +14,7 @@ vgg = vggTransfer.loadVgg(n_classes = 10)
 if torch.cuda.is_available():
     vgg = vgg.to(device)
 
-vgg.load_state_dict(torch.load('attempts/vgg_transfer_full/models/model_11.pt'))
+vgg.load_state_dict(torch.load('model_11.pt'))
 vgg.eval()
 
 tform = pp.createDataTransforms()['val']
